@@ -198,24 +198,33 @@ func (kd *kubeDriver) workerPodSpec(ctx context.Context, options *workerOptions,
 	commonEnv = append(commonEnv, log.WorkerLogConfig.AsKubernetesEnvironment()...)
 
 	// Set up sidecar env vars
-	sidecarEnv := []v1.EnvVar{{
-		Name:  "PORT",
-		Value: strconv.FormatUint(uint64(kd.config.Port), 10),
-	}, {
-		Name: "PACHD_POD_NAME",
-		ValueFrom: &v1.EnvVarSource{
-			FieldRef: &v1.ObjectFieldSelector{
-				APIVersion: "v1",
-				FieldPath:  "metadata.name",
+	sidecarEnv := []v1.EnvVar{
+		{
+			Name:  "PORT",
+			Value: strconv.FormatUint(uint64(kd.config.Port), 10),
+		},
+		{
+			Name: "PACHD_POD_NAME",
+			ValueFrom: &v1.EnvVarSource{
+				FieldRef: &v1.ObjectFieldSelector{
+					APIVersion: "v1",
+					FieldPath:  "metadata.name",
+				},
 			},
 		},
-	}, {
-		Name:  "PACHW_IN_SIDECARS",
-		Value: strconv.FormatBool(kd.config.PachwInSidecars),
-	}, {
-		Name:  "GC_PERCENT",
-		Value: strconv.FormatInt(int64(kd.config.GCPercent), 10),
-	}}
+		{
+			Name:  "PACHW_IN_SIDECARS",
+			Value: strconv.FormatBool(kd.config.PachwInSidecars),
+		},
+		{
+			Name:  "GC_PERCENT",
+			Value: strconv.FormatInt(int64(kd.config.GCPercent), 10),
+		},
+		{
+			Name:  "PROMETHEUS_PORT",
+			Value: strconv.FormatInt(workerstats.SidecarPrometheusPort, 10),
+		},
+	}
 
 	sidecarEnv = append(sidecarEnv, kd.getStorageEnvVars(pipelineInfo)...)
 	sidecarEnv = append(sidecarEnv, commonEnv...)
@@ -378,8 +387,13 @@ func (kd *kubeDriver) workerPodSpec(ctx context.Context, options *workerOptions,
 		workerServiceAccountName = DefaultWorkerServiceAccountName
 	}
 
+	var sidecarPorts = []v1.ContainerPort{
+		{
+			Name:          "metrics-storage",
+			ContainerPort: workerstats.SidecarPrometheusPort,
+		},
+	}
 	// possibly expose s3 gateway port in the sidecar container
-	var sidecarPorts []v1.ContainerPort
 	if options.s3GatewayPort != 0 {
 		sidecarPorts = append(sidecarPorts, v1.ContainerPort{
 			ContainerPort: options.s3GatewayPort,
@@ -463,7 +477,13 @@ func (kd *kubeDriver) workerPodSpec(ctx context.Context, options *workerOptions,
 				Resources: v1.ResourceRequirements{
 					Requests: v1.ResourceList{},
 				},
-				VolumeMounts:    userVolumeMounts,
+				VolumeMounts: userVolumeMounts,
+				Ports: []v1.ContainerPort{
+					{
+						Name:          "metrics-user",
+						ContainerPort: workerstats.PrometheusPort,
+					},
+				},
 				SecurityContext: userSecurityCtx,
 			},
 			{
@@ -1081,8 +1101,9 @@ func (kd *kubeDriver) createWorkerSvcAndRc(ctx context.Context, pipelineInfo *pp
 		}
 	}
 	serviceAnnotations := map[string]string{
-		"prometheus.io/scrape": "true",
-		"prometheus.io/port":   strconv.Itoa(workerstats.PrometheusPort),
+		"prometheus.io/scrape":     "true",
+		"prometheus.io/port":       strconv.Itoa(workerstats.PrometheusPort),
+		"pachyderm.io/multiscrape": "true",
 	}
 
 	service := &v1.Service{
@@ -1106,6 +1127,10 @@ func (kd *kubeDriver) createWorkerSvcAndRc(ctx context.Context, pipelineInfo *pp
 				{
 					Port: workerstats.PrometheusPort,
 					Name: "prom-metrics",
+				},
+				{
+					Port: workerstats.SidecarPrometheusPort,
+					Name: "metrics-storage",
 				},
 			},
 		},

@@ -713,6 +713,22 @@ func TestToggleBranchProvenance(t *testing.T) {
 	require.Equal(t, inCommitInfo.Commit.Id, inMasterCommitInfo.Commit.Id)
 }
 
+func TestDeleteBranchWithProvenance(t *testing.T) {
+	ctx := pctx.TestContext(t)
+	env := realenv.NewRealEnv(ctx, t, dockertestenv.NewTestDBConfig(t).PachConfigOption)
+	require.NoError(t, env.PachClient.CreateRepo(pfs.DefaultProjectName, "in"))
+	require.NoError(t, env.PachClient.CreateRepo(pfs.DefaultProjectName, "out"))
+	require.NoError(t, env.PachClient.CreateBranch(pfs.DefaultProjectName, "out", "master", "", "", []*pfs.Branch{client.NewBranch(pfs.DefaultProjectName, "in", "master")}))
+	err := env.PachClient.DeleteBranch(pfs.DefaultProjectName, "in", "master", false)
+	require.YesError(t, err)
+	matchErr := fmt.Sprintf("branch %q cannot be deleted because it's in the direct provenance of %v",
+		client.NewBranch(pfs.DefaultProjectName, "in", "master"),
+		[]*pfs.Branch{client.NewBranch(pfs.DefaultProjectName, "out", "master")},
+	)
+	require.Equal(t, matchErr, err.Error())
+	require.NoError(t, env.PachClient.DeleteBranch(pfs.DefaultProjectName, "in", "master", true))
+}
+
 func TestRecreateBranchProvenance(t *testing.T) {
 	ctx := pctx.TestContext(t)
 	env := realenv.NewRealEnv(ctx, t, dockertestenv.NewTestDBConfig(t).PachConfigOption)
@@ -4484,6 +4500,19 @@ func TestFindCommits(t *testing.T) {
 	require.Equal(t, []*pfs.Commit{commit4, commit3, commit1}, resp.FoundCommits)
 	require.Equal(t, uint32(4), resp.CommitsSearched)
 	require.Equal(t, commit1, resp.LastSearchedCommit)
+
+	require.NoError(t, env.PachClient.DeleteBranch(pfs.DefaultProjectName, repo, "master", true))
+	commit4.Branch = nil
+	commit3.Branch = nil
+	commit2.Branch = nil
+	commit1.Branch = nil
+
+	resp, err = env.PachClient.FindCommits(&pfs.FindCommitsRequest{FilePath: "/files/b", Start: commit4, Limit: 0})
+	require.NoError(t, err)
+
+	require.Equal(t, []*pfs.Commit{commit4, commit3, commit1}, resp.FoundCommits)
+	require.Equal(t, uint32(4), resp.CommitsSearched)
+	require.Equal(t, commit1, resp.LastSearchedCommit)
 }
 
 func TestFindCommitsLimit(t *testing.T) {
@@ -6431,7 +6460,7 @@ OpLoop:
 			branch := inputBranches[i]
 			err = env.PachClient.DeleteBranch(pfs.DefaultProjectName, branch.Repo.Name, branch.Name, false)
 			// don't fail if the error was just that it couldn't delete the branch without breaking subvenance
-			if err != nil && !strings.Contains(err.Error(), `delete on table "branches" violates foreign key constraint "branch_provenance_to_id_fkey" on table "branch_provenance`) {
+			if err != nil && !strings.Contains(err.Error(), fmt.Sprintf("branch %q cannot be deleted because it's in the direct provenance of", branch)) {
 				require.NoError(t, err)
 			}
 			inputBranches = append(inputBranches[:i], inputBranches[i+1:]...)
