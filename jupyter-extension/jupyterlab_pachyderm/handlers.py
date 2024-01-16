@@ -332,9 +332,7 @@ class ConfigHandler(BaseHandler):
             address = body["pachd_address"]
             cas = bytes(body["server_cas"], "utf-8") if "server_cas" in body else None
 
-            client = Client().from_pachd_address(
-                pachd_address=address, root_certs=cas
-            )
+            client = Client().from_pachd_address(pachd_address=address, root_certs=cas)
             self.settings["pachyderm_client"] = client
             self.settings["pfs_contents_manager"] = PFSManager(client=client)
             self.settings["datum_contents_manager"] = DatumManager(client=client)
@@ -462,7 +460,9 @@ def setup_handlers(web_app):
         if PACHD_ADDRESS:
             client = Client().from_pachd_address(pachd_address=PACHD_ADDRESS)
             if DEX_TOKEN:
-                client.auth_token = client.auth.authenticate(id_token=DEX_TOKEN).pach_token
+                client.auth_token = client.auth.authenticate(
+                    id_token=DEX_TOKEN
+                ).pach_token
         else:
             client = Client()
             get_logger().debug(
