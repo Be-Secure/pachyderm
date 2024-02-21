@@ -158,7 +158,7 @@
                 },
                 "numFiles": {
                     "type": "integer",
-                    "description": "NOTE: num_files and size_bytes did not exist in older versions of 2.x, so they will not be set."
+                    "description": "NOTE: num_files and size_bytes did not exist in older versions of 2.x, so\r they will not be set."
                 },
                 "sizeBytes": {
                     "type": "integer"

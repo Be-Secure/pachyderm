@@ -17,7 +17,7 @@
             "properties": {
                 "expires": {
                     "type": "string",
-                    "description": "expires indicates when the current token expires (unset if there is no current token)",
+                    "description": "expires indicates when the current token expires (unset if there is no\r current token)",
                     "format": "date-time"
                 }
             },

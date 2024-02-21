@@ -14,7 +14,7 @@
                 },
                 "secret": {
                     "type": "string",
-                    "description": "If set, secret specifies the shared secret this cluster will use to authenticate to the license server. Otherwise a secret will be generated and returned in the response."
+                    "description": "If set, secret specifies the shared secret this cluster will use\r to authenticate to the license server. Otherwise a secret will be\r generated and returned in the response."
                 },
                 "userAddress": {
                     "type": "string",

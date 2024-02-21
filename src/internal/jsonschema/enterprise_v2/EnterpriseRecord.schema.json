@@ -7,22 +7,22 @@
                 "license": {
                     "$ref": "#/definitions/enterprise_v2.LicenseRecord",
                     "additionalProperties": false,
-                    "description": "license is the cached LicenseRecord retrieved from the most recent heartbeat to the license server."
+                    "description": "license is the cached LicenseRecord retrieved from the most recent\r heartbeat to the license server."
                 },
                 "lastHeartbeat": {
                     "type": "string",
-                    "description": "last_heartbeat is the timestamp of the last successful heartbeat to the license server",
+                    "description": "last_heartbeat is the timestamp of the last successful heartbeat\r to the license server",
                     "format": "date-time"
                 },
                 "heartbeatFailed": {
                     "type": "boolean",
-                    "description": "heartbeat_failed is set if the license is still valid, but the pachd is no longer registered with an enterprise server. This is the same as the expired state, where auth is locked but not disabled."
+                    "description": "heartbeat_failed is set if the license is still valid, but\r the pachd is no longer registered with an enterprise server.\r This is the same as the expired state, where auth is locked\r but not disabled."
                 }
             },
             "additionalProperties": false,
             "type": "object",
             "title": "Enterprise Record",
-            "description": "EnterpriseRecord is a protobuf we cache in etcd to store the enterprise status."
+            "description": "EnterpriseRecord is a protobuf we cache in etcd to store the\r enterprise status."
         },
         "enterprise_v2.LicenseRecord": {
             "properties": {
@@ -37,7 +37,7 @@
             "additionalProperties": false,
             "type": "object",
             "title": "Enterprise data structures",
-            "description": "Enterprise data structures  LicenseRecord is the record we store in etcd for a Pachyderm enterprise token that has been provided to a Pachyderm license server"
+            "description": "Enterprise data structures  LicenseRecord is the record we store in etcd for a Pachyderm enterprise\r token that has been provided to a Pachyderm license server"
         }
     }
 }

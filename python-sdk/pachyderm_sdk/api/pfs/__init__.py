@@ -90,8 +90,46 @@ class Repo(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class RepoPicker(betterproto.Message):
+    """
+    Repo defines mutually exclusive pickers that resolve to a single
+    repository. Currently, the only way to pick a repo is by composing a repo
+    name and type with a project. If the type is omitted, the 'user' type will
+    be used as a default. Picker messages should only be used as request
+    parameters.
+    """
+
+    name: "RepoPickerRepoName" = betterproto.message_field(1, group="picker")
+
+
+@dataclass(eq=False, repr=False)
+class RepoPickerRepoName(betterproto.Message):
+    project: "ProjectPicker" = betterproto.message_field(1)
+    name: str = betterproto.string_field(2)
+    type: str = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
 class Branch(betterproto.Message):
     repo: "Repo" = betterproto.message_field(1)
+    name: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class BranchPicker(betterproto.Message):
+    """
+    BranchPicker defines mutually exclusive pickers that resolve to a single
+    branch. Currently, the only way to pick a branch is by composing a branch
+    name with a repo. Picker messages should only be used as request
+    parameters.
+    """
+
+    name: "BranchPickerBranchName" = betterproto.message_field(1, group="picker")
+
+
+@dataclass(eq=False, repr=False)
+class BranchPickerBranchName(betterproto.Message):
+    repo: "RepoPicker" = betterproto.message_field(1)
     name: str = betterproto.string_field(2)
 
 
@@ -224,8 +262,52 @@ class Commit(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class CommitPicker(betterproto.Message):
+    """
+    CommitPicker defines mutually exclusive pickers that resolve to a single
+    commit. Commits can be picked relatively from some other commit like a
+    parent or start of branch. Alternatively, they can be picked via their
+    global Id, which is composed of a repo picker and an id. Picker messages
+    should only be used as request parameters.
+    """
+
+    branch: "BranchPicker" = betterproto.message_field(1, group="picker")
+    id: "CommitPickerCommitByGlobalId" = betterproto.message_field(2, group="picker")
+    parent_of: "CommitPickerParentOf" = betterproto.message_field(3, group="picker")
+    start_of_branch: "CommitPickerStartOfBranch" = betterproto.message_field(
+        4, group="picker"
+    )
+
+
+@dataclass(eq=False, repr=False)
+class CommitPickerCommitByGlobalId(betterproto.Message):
+    repo: "RepoPicker" = betterproto.message_field(1)
+    id: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class CommitPickerStartOfBranch(betterproto.Message):
+    """this models .N syntax."""
+
+    offset: int = betterproto.uint32_field(1)
+    branch: "BranchPicker" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class CommitPickerParentOf(betterproto.Message):
+    """
+    This models ^ syntax. Because this is recursive, this should also model
+    cases like id^^ or (id.2)^
+    """
+
+    selector: "CommitPicker" = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
 class CommitInfo(betterproto.Message):
-    """CommitInfo is the main data structure representing a commit in etcd"""
+    """
+    CommitInfo is the main data structure representing a commit in postgres
+    """
 
     commit: "Commit" = betterproto.message_field(1)
     origin: "CommitOrigin" = betterproto.message_field(2)
@@ -283,6 +365,17 @@ class ProjectInfo(betterproto.Message):
     description: str = betterproto.string_field(2)
     auth_info: "AuthInfo" = betterproto.message_field(3)
     created_at: datetime = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ProjectPicker(betterproto.Message):
+    """
+    ProjectPicker defines mutually exclusive pickers that resolve to a single
+    project. Currently, the only way to pick a project is by using a project
+    name. Picker messages should only be used as request parameters.
+    """
+
+    name: str = betterproto.string_field(1, group="picker")
 
 
 @dataclass(eq=False, repr=False)
@@ -497,6 +590,24 @@ class FindCommitsResponse(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class WalkCommitProvenanceRequest(betterproto.Message):
+    start: List["CommitPicker"] = betterproto.message_field(1)
+    max_commits: int = betterproto.uint64_field(2)
+    """The fields below are optional."""
+
+    max_depth: int = betterproto.uint64_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class WalkCommitSubvenanceRequest(betterproto.Message):
+    start: List["CommitPicker"] = betterproto.message_field(1)
+    max_commits: int = betterproto.uint64_field(2)
+    """The fields below are optional."""
+
+    max_depth: int = betterproto.uint64_field(3)
+
+
+@dataclass(eq=False, repr=False)
 class InspectBranchRequest(betterproto.Message):
     branch: "Branch" = betterproto.message_field(1)
 
@@ -511,6 +622,24 @@ class ListBranchRequest(betterproto.Message):
 class DeleteBranchRequest(betterproto.Message):
     branch: "Branch" = betterproto.message_field(1)
     force: bool = betterproto.bool_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class WalkBranchProvenanceRequest(betterproto.Message):
+    start: List["BranchPicker"] = betterproto.message_field(1)
+    max_branches: int = betterproto.uint64_field(2)
+    """The fields below are optional."""
+
+    max_depth: int = betterproto.uint64_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class WalkBranchSubvenanceRequest(betterproto.Message):
+    start: List["BranchPicker"] = betterproto.message_field(1)
+    max_branches: int = betterproto.uint64_field(2)
+    """The fields below are optional."""
+
+    max_depth: int = betterproto.uint64_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -899,6 +1028,16 @@ class ApiStub:
             request_serializer=DropCommitRequest.SerializeToString,
             response_deserializer=DropCommitResponse.FromString,
         )
+        self.__rpc_walk_commit_provenance = channel.unary_stream(
+            "/pfs_v2.API/WalkCommitProvenance",
+            request_serializer=WalkCommitProvenanceRequest.SerializeToString,
+            response_deserializer=CommitInfo.FromString,
+        )
+        self.__rpc_walk_commit_subvenance = channel.unary_stream(
+            "/pfs_v2.API/WalkCommitSubvenance",
+            request_serializer=WalkCommitSubvenanceRequest.SerializeToString,
+            response_deserializer=CommitInfo.FromString,
+        )
         self.__rpc_inspect_commit_set = channel.unary_stream(
             "/pfs_v2.API/InspectCommitSet",
             request_serializer=InspectCommitSetRequest.SerializeToString,
@@ -943,6 +1082,16 @@ class ApiStub:
             "/pfs_v2.API/DeleteBranch",
             request_serializer=DeleteBranchRequest.SerializeToString,
             response_deserializer=betterproto_lib_google_protobuf.Empty.FromString,
+        )
+        self.__rpc_walk_branch_provenance = channel.unary_stream(
+            "/pfs_v2.API/WalkBranchProvenance",
+            request_serializer=WalkBranchProvenanceRequest.SerializeToString,
+            response_deserializer=BranchInfo.FromString,
+        )
+        self.__rpc_walk_branch_subvenance = channel.unary_stream(
+            "/pfs_v2.API/WalkBranchSubvenance",
+            request_serializer=WalkBranchProvenanceRequest.SerializeToString,
+            response_deserializer=BranchInfo.FromString,
         )
         self.__rpc_modify_file = channel.stream_unary(
             "/pfs_v2.API/ModifyFile",
@@ -1274,6 +1423,42 @@ class ApiStub:
 
         return self.__rpc_drop_commit(request)
 
+    def walk_commit_provenance(
+        self,
+        *,
+        start: Optional[List["CommitPicker"]] = None,
+        max_commits: int = 0,
+        max_depth: int = 0
+    ) -> Iterator["CommitInfo"]:
+        start = start or []
+
+        request = WalkCommitProvenanceRequest()
+        if start is not None:
+            request.start = start
+        request.max_commits = max_commits
+        request.max_depth = max_depth
+
+        for response in self.__rpc_walk_commit_provenance(request):
+            yield response
+
+    def walk_commit_subvenance(
+        self,
+        *,
+        start: Optional[List["CommitPicker"]] = None,
+        max_commits: int = 0,
+        max_depth: int = 0
+    ) -> Iterator["CommitInfo"]:
+        start = start or []
+
+        request = WalkCommitSubvenanceRequest()
+        if start is not None:
+            request.start = start
+        request.max_commits = max_commits
+        request.max_depth = max_depth
+
+        for response in self.__rpc_walk_commit_subvenance(request):
+            yield response
+
     def inspect_commit_set(
         self, *, commit_set: "CommitSet" = None, wait: bool = False
     ) -> Iterator["CommitInfo"]:
@@ -1384,6 +1569,42 @@ class ApiStub:
         request.force = force
 
         return self.__rpc_delete_branch(request)
+
+    def walk_branch_provenance(
+        self,
+        *,
+        start: Optional[List["BranchPicker"]] = None,
+        max_branches: int = 0,
+        max_depth: int = 0
+    ) -> Iterator["BranchInfo"]:
+        start = start or []
+
+        request = WalkBranchProvenanceRequest()
+        if start is not None:
+            request.start = start
+        request.max_branches = max_branches
+        request.max_depth = max_depth
+
+        for response in self.__rpc_walk_branch_provenance(request):
+            yield response
+
+    def walk_branch_subvenance(
+        self,
+        *,
+        start: Optional[List["BranchPicker"]] = None,
+        max_branches: int = 0,
+        max_depth: int = 0
+    ) -> Iterator["BranchInfo"]:
+        start = start or []
+
+        request = WalkBranchProvenanceRequest()
+        if start is not None:
+            request.start = start
+        request.max_branches = max_branches
+        request.max_depth = max_depth
+
+        for response in self.__rpc_walk_branch_subvenance(request):
+            yield response
 
     def modify_file(
         self,
@@ -1864,6 +2085,28 @@ class ApiBase:
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def walk_commit_provenance(
+        self,
+        start: Optional[List["CommitPicker"]],
+        max_commits: int,
+        max_depth: int,
+        context: "grpc.ServicerContext",
+    ) -> Iterator["CommitInfo"]:
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def walk_commit_subvenance(
+        self,
+        start: Optional[List["CommitPicker"]],
+        max_commits: int,
+        max_depth: int,
+        context: "grpc.ServicerContext",
+    ) -> Iterator["CommitInfo"]:
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
     def inspect_commit_set(
         self, commit_set: "CommitSet", wait: bool, context: "grpc.ServicerContext"
     ) -> Iterator["CommitInfo"]:
@@ -1933,6 +2176,28 @@ class ApiBase:
     def delete_branch(
         self, branch: "Branch", force: bool, context: "grpc.ServicerContext"
     ) -> "betterproto_lib_google_protobuf.Empty":
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def walk_branch_provenance(
+        self,
+        start: Optional[List["BranchPicker"]],
+        max_branches: int,
+        max_depth: int,
+        context: "grpc.ServicerContext",
+    ) -> Iterator["BranchInfo"]:
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def walk_branch_subvenance(
+        self,
+        start: Optional[List["BranchPicker"]],
+        max_branches: int,
+        max_depth: int,
+        context: "grpc.ServicerContext",
+    ) -> Iterator["BranchInfo"]:
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
@@ -2261,6 +2526,16 @@ class ApiBase:
                 request_deserializer=DropCommitRequest.FromString,
                 response_serializer=DropCommitRequest.SerializeToString,
             ),
+            "WalkCommitProvenance": grpc.unary_stream_rpc_method_handler(
+                self.walk_commit_provenance,
+                request_deserializer=WalkCommitProvenanceRequest.FromString,
+                response_serializer=WalkCommitProvenanceRequest.SerializeToString,
+            ),
+            "WalkCommitSubvenance": grpc.unary_stream_rpc_method_handler(
+                self.walk_commit_subvenance,
+                request_deserializer=WalkCommitSubvenanceRequest.FromString,
+                response_serializer=WalkCommitSubvenanceRequest.SerializeToString,
+            ),
             "InspectCommitSet": grpc.unary_stream_rpc_method_handler(
                 self.inspect_commit_set,
                 request_deserializer=InspectCommitSetRequest.FromString,
@@ -2305,6 +2580,16 @@ class ApiBase:
                 self.delete_branch,
                 request_deserializer=DeleteBranchRequest.FromString,
                 response_serializer=DeleteBranchRequest.SerializeToString,
+            ),
+            "WalkBranchProvenance": grpc.unary_stream_rpc_method_handler(
+                self.walk_branch_provenance,
+                request_deserializer=WalkBranchProvenanceRequest.FromString,
+                response_serializer=WalkBranchProvenanceRequest.SerializeToString,
+            ),
+            "WalkBranchSubvenance": grpc.unary_stream_rpc_method_handler(
+                self.walk_branch_subvenance,
+                request_deserializer=WalkBranchProvenanceRequest.FromString,
+                response_serializer=WalkBranchProvenanceRequest.SerializeToString,
             ),
             "ModifyFile": grpc.stream_unary_rpc_method_handler(
                 self.modify_file,

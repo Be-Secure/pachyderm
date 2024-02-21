@@ -69,10 +69,35 @@ export type Repo = {
   project?: Project
 }
 
+export type RepoPickerRepoName = {
+  project?: ProjectPicker
+  name?: string
+  type?: string
+}
+
+
+type BaseRepoPicker = {
+}
+
+export type RepoPicker = BaseRepoPicker
+  & OneOf<{ name: RepoPickerRepoName }>
+
 export type Branch = {
   repo?: Repo
   name?: string
 }
+
+export type BranchPickerBranchName = {
+  repo?: RepoPicker
+  name?: string
+}
+
+
+type BaseBranchPicker = {
+}
+
+export type BranchPicker = BaseBranchPicker
+  & OneOf<{ name: BranchPickerBranchName }>
 
 export type File = {
   commit?: Commit
@@ -127,6 +152,27 @@ export type Commit = {
   branch?: Branch
 }
 
+export type CommitPickerCommitByGlobalId = {
+  repo?: RepoPicker
+  id?: string
+}
+
+export type CommitPickerStartOfBranch = {
+  offset?: number
+  branch?: BranchPicker
+}
+
+export type CommitPickerParentOf = {
+  selector?: CommitPicker
+}
+
+
+type BaseCommitPicker = {
+}
+
+export type CommitPicker = BaseCommitPicker
+  & OneOf<{ branch: BranchPicker; id: CommitPickerCommitByGlobalId; parentOf: CommitPickerParentOf; startOfBranch: CommitPickerStartOfBranch }>
+
 export type CommitInfoDetails = {
   sizeBytes?: string
   compactingTime?: GoogleProtobufDuration.Duration
@@ -175,6 +221,13 @@ export type ProjectInfo = {
   authInfo?: AuthInfo
   createdAt?: GoogleProtobufTimestamp.Timestamp
 }
+
+
+type BaseProjectPicker = {
+}
+
+export type ProjectPicker = BaseProjectPicker
+  & OneOf<{ name: string }>
 
 export type CreateRepoRequest = {
   repo?: Repo
@@ -307,6 +360,18 @@ type BaseFindCommitsResponse = {
 export type FindCommitsResponse = BaseFindCommitsResponse
   & OneOf<{ foundCommit: Commit; lastSearchedCommit: Commit }>
 
+export type WalkCommitProvenanceRequest = {
+  start?: CommitPicker[]
+  maxCommits?: string
+  maxDepth?: string
+}
+
+export type WalkCommitSubvenanceRequest = {
+  start?: CommitPicker[]
+  maxCommits?: string
+  maxDepth?: string
+}
+
 export type InspectBranchRequest = {
   branch?: Branch
 }
@@ -319,6 +384,18 @@ export type ListBranchRequest = {
 export type DeleteBranchRequest = {
   branch?: Branch
   force?: boolean
+}
+
+export type WalkBranchProvenanceRequest = {
+  start?: BranchPicker[]
+  maxBranches?: string
+  maxDepth?: string
+}
+
+export type WalkBranchSubvenanceRequest = {
+  start?: BranchPicker[]
+  maxBranches?: string
+  maxDepth?: string
 }
 
 export type CreateProjectRequest = {
@@ -595,6 +672,12 @@ export class API {
   static DropCommit(req: DropCommitRequest, initReq?: fm.InitReq): Promise<DropCommitResponse> {
     return fm.fetchReq<DropCommitRequest, DropCommitResponse>(`/pfs_v2.API/DropCommit`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
+  static WalkCommitProvenance(req: WalkCommitProvenanceRequest, entityNotifier?: fm.NotifyStreamEntityArrival<CommitInfo>, initReq?: fm.InitReq): Promise<void> {
+    return fm.fetchStreamingRequest<WalkCommitProvenanceRequest, CommitInfo>(`/pfs_v2.API/WalkCommitProvenance`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static WalkCommitSubvenance(req: WalkCommitSubvenanceRequest, entityNotifier?: fm.NotifyStreamEntityArrival<CommitInfo>, initReq?: fm.InitReq): Promise<void> {
+    return fm.fetchStreamingRequest<WalkCommitSubvenanceRequest, CommitInfo>(`/pfs_v2.API/WalkCommitSubvenance`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
   static InspectCommitSet(req: InspectCommitSetRequest, entityNotifier?: fm.NotifyStreamEntityArrival<CommitInfo>, initReq?: fm.InitReq): Promise<void> {
     return fm.fetchStreamingRequest<InspectCommitSetRequest, CommitInfo>(`/pfs_v2.API/InspectCommitSet`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
@@ -621,6 +704,12 @@ export class API {
   }
   static DeleteBranch(req: DeleteBranchRequest, initReq?: fm.InitReq): Promise<GoogleProtobufEmpty.Empty> {
     return fm.fetchReq<DeleteBranchRequest, GoogleProtobufEmpty.Empty>(`/pfs_v2.API/DeleteBranch`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static WalkBranchProvenance(req: WalkBranchProvenanceRequest, entityNotifier?: fm.NotifyStreamEntityArrival<BranchInfo>, initReq?: fm.InitReq): Promise<void> {
+    return fm.fetchStreamingRequest<WalkBranchProvenanceRequest, BranchInfo>(`/pfs_v2.API/WalkBranchProvenance`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static WalkBranchSubvenance(req: WalkBranchProvenanceRequest, entityNotifier?: fm.NotifyStreamEntityArrival<BranchInfo>, initReq?: fm.InitReq): Promise<void> {
+    return fm.fetchStreamingRequest<WalkBranchProvenanceRequest, BranchInfo>(`/pfs_v2.API/WalkBranchSubvenance`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
   static GetFile(req: GetFileRequest, entityNotifier?: fm.NotifyStreamEntityArrival<GoogleProtobufWrappers.BytesValue>, initReq?: fm.InitReq): Promise<void> {
     return fm.fetchStreamingRequest<GetFileRequest, GoogleProtobufWrappers.BytesValue>(`/pfs_v2.API/GetFile`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})

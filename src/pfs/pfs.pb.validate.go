@@ -170,6 +170,151 @@ var _ interface {
 	ErrorName() string
 } = RepoValidationError{}
 
+// Validate checks the field values on RepoPicker with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *RepoPicker) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RepoPicker with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in RepoPickerMultiError, or
+// nil if none found.
+func (m *RepoPicker) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RepoPicker) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Picker.(type) {
+	case *RepoPicker_Name:
+		if v == nil {
+			err := RepoPickerValidationError{
+				field:  "Picker",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetName()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, RepoPickerValidationError{
+						field:  "Name",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, RepoPickerValidationError{
+						field:  "Name",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetName()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RepoPickerValidationError{
+					field:  "Name",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return RepoPickerMultiError(errors)
+	}
+
+	return nil
+}
+
+// RepoPickerMultiError is an error wrapping multiple validation errors
+// returned by RepoPicker.ValidateAll() if the designated constraints aren't met.
+type RepoPickerMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RepoPickerMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RepoPickerMultiError) AllErrors() []error { return m }
+
+// RepoPickerValidationError is the validation error returned by
+// RepoPicker.Validate if the designated constraints aren't met.
+type RepoPickerValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RepoPickerValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RepoPickerValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RepoPickerValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RepoPickerValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RepoPickerValidationError) ErrorName() string { return "RepoPickerValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RepoPickerValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRepoPicker.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RepoPickerValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RepoPickerValidationError{}
+
 // Validate checks the field values on Branch with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -298,6 +443,151 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = BranchValidationError{}
+
+// Validate checks the field values on BranchPicker with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *BranchPicker) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BranchPicker with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BranchPickerMultiError, or
+// nil if none found.
+func (m *BranchPicker) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BranchPicker) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Picker.(type) {
+	case *BranchPicker_Name:
+		if v == nil {
+			err := BranchPickerValidationError{
+				field:  "Picker",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetName()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, BranchPickerValidationError{
+						field:  "Name",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, BranchPickerValidationError{
+						field:  "Name",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetName()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return BranchPickerValidationError{
+					field:  "Name",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return BranchPickerMultiError(errors)
+	}
+
+	return nil
+}
+
+// BranchPickerMultiError is an error wrapping multiple validation errors
+// returned by BranchPicker.ValidateAll() if the designated constraints aren't met.
+type BranchPickerMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BranchPickerMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BranchPickerMultiError) AllErrors() []error { return m }
+
+// BranchPickerValidationError is the validation error returned by
+// BranchPicker.Validate if the designated constraints aren't met.
+type BranchPickerValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BranchPickerValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BranchPickerValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BranchPickerValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BranchPickerValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BranchPickerValidationError) ErrorName() string { return "BranchPickerValidationError" }
+
+// Error satisfies the builtin error interface
+func (e BranchPickerValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBranchPicker.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = BranchPickerValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BranchPickerValidationError{}
 
 // Validate checks the field values on File with the rules defined in the proto
 // definition for this message. If any rules are violated, the first error
@@ -1439,6 +1729,274 @@ var _ interface {
 	ErrorName() string
 } = CommitValidationError{}
 
+// Validate checks the field values on CommitPicker with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *CommitPicker) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CommitPicker with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in CommitPickerMultiError, or
+// nil if none found.
+func (m *CommitPicker) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CommitPicker) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Picker.(type) {
+	case *CommitPicker_Branch:
+		if v == nil {
+			err := CommitPickerValidationError{
+				field:  "Picker",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetBranch()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CommitPickerValidationError{
+						field:  "Branch",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CommitPickerValidationError{
+						field:  "Branch",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetBranch()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CommitPickerValidationError{
+					field:  "Branch",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *CommitPicker_Id:
+		if v == nil {
+			err := CommitPickerValidationError{
+				field:  "Picker",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetId()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CommitPickerValidationError{
+						field:  "Id",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CommitPickerValidationError{
+						field:  "Id",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetId()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CommitPickerValidationError{
+					field:  "Id",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *CommitPicker_ParentOf_:
+		if v == nil {
+			err := CommitPickerValidationError{
+				field:  "Picker",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetParentOf()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CommitPickerValidationError{
+						field:  "ParentOf",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CommitPickerValidationError{
+						field:  "ParentOf",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetParentOf()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CommitPickerValidationError{
+					field:  "ParentOf",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *CommitPicker_StartOfBranch_:
+		if v == nil {
+			err := CommitPickerValidationError{
+				field:  "Picker",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetStartOfBranch()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CommitPickerValidationError{
+						field:  "StartOfBranch",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CommitPickerValidationError{
+						field:  "StartOfBranch",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetStartOfBranch()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CommitPickerValidationError{
+					field:  "StartOfBranch",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return CommitPickerMultiError(errors)
+	}
+
+	return nil
+}
+
+// CommitPickerMultiError is an error wrapping multiple validation errors
+// returned by CommitPicker.ValidateAll() if the designated constraints aren't met.
+type CommitPickerMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CommitPickerMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CommitPickerMultiError) AllErrors() []error { return m }
+
+// CommitPickerValidationError is the validation error returned by
+// CommitPicker.Validate if the designated constraints aren't met.
+type CommitPickerValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CommitPickerValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CommitPickerValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CommitPickerValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CommitPickerValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CommitPickerValidationError) ErrorName() string { return "CommitPickerValidationError" }
+
+// Error satisfies the builtin error interface
+func (e CommitPickerValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCommitPicker.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CommitPickerValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CommitPickerValidationError{}
+
 // Validate checks the field values on CommitInfo with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -2529,6 +3087,123 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ProjectInfoValidationError{}
+
+// Validate checks the field values on ProjectPicker with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ProjectPicker) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ProjectPicker with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ProjectPickerMultiError, or
+// nil if none found.
+func (m *ProjectPicker) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ProjectPicker) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Picker.(type) {
+	case *ProjectPicker_Name:
+		if v == nil {
+			err := ProjectPickerValidationError{
+				field:  "Picker",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+		// no validation rules for Name
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return ProjectPickerMultiError(errors)
+	}
+
+	return nil
+}
+
+// ProjectPickerMultiError is an error wrapping multiple validation errors
+// returned by ProjectPicker.ValidateAll() if the designated constraints
+// aren't met.
+type ProjectPickerMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ProjectPickerMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ProjectPickerMultiError) AllErrors() []error { return m }
+
+// ProjectPickerValidationError is the validation error returned by
+// ProjectPicker.Validate if the designated constraints aren't met.
+type ProjectPickerValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ProjectPickerValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ProjectPickerValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ProjectPickerValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ProjectPickerValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ProjectPickerValidationError) ErrorName() string { return "ProjectPickerValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ProjectPickerValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sProjectPicker.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ProjectPickerValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ProjectPickerValidationError{}
 
 // Validate checks the field values on CreateRepoRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -5971,6 +6646,288 @@ var _ interface {
 	ErrorName() string
 } = FindCommitsResponseValidationError{}
 
+// Validate checks the field values on WalkCommitProvenanceRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *WalkCommitProvenanceRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on WalkCommitProvenanceRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// WalkCommitProvenanceRequestMultiError, or nil if none found.
+func (m *WalkCommitProvenanceRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *WalkCommitProvenanceRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetStart() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WalkCommitProvenanceRequestValidationError{
+						field:  fmt.Sprintf("Start[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WalkCommitProvenanceRequestValidationError{
+						field:  fmt.Sprintf("Start[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return WalkCommitProvenanceRequestValidationError{
+					field:  fmt.Sprintf("Start[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for MaxCommits
+
+	// no validation rules for MaxDepth
+
+	if len(errors) > 0 {
+		return WalkCommitProvenanceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// WalkCommitProvenanceRequestMultiError is an error wrapping multiple
+// validation errors returned by WalkCommitProvenanceRequest.ValidateAll() if
+// the designated constraints aren't met.
+type WalkCommitProvenanceRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m WalkCommitProvenanceRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m WalkCommitProvenanceRequestMultiError) AllErrors() []error { return m }
+
+// WalkCommitProvenanceRequestValidationError is the validation error returned
+// by WalkCommitProvenanceRequest.Validate if the designated constraints
+// aren't met.
+type WalkCommitProvenanceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e WalkCommitProvenanceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e WalkCommitProvenanceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e WalkCommitProvenanceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e WalkCommitProvenanceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e WalkCommitProvenanceRequestValidationError) ErrorName() string {
+	return "WalkCommitProvenanceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e WalkCommitProvenanceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sWalkCommitProvenanceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = WalkCommitProvenanceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = WalkCommitProvenanceRequestValidationError{}
+
+// Validate checks the field values on WalkCommitSubvenanceRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *WalkCommitSubvenanceRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on WalkCommitSubvenanceRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// WalkCommitSubvenanceRequestMultiError, or nil if none found.
+func (m *WalkCommitSubvenanceRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *WalkCommitSubvenanceRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetStart() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WalkCommitSubvenanceRequestValidationError{
+						field:  fmt.Sprintf("Start[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WalkCommitSubvenanceRequestValidationError{
+						field:  fmt.Sprintf("Start[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return WalkCommitSubvenanceRequestValidationError{
+					field:  fmt.Sprintf("Start[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for MaxCommits
+
+	// no validation rules for MaxDepth
+
+	if len(errors) > 0 {
+		return WalkCommitSubvenanceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// WalkCommitSubvenanceRequestMultiError is an error wrapping multiple
+// validation errors returned by WalkCommitSubvenanceRequest.ValidateAll() if
+// the designated constraints aren't met.
+type WalkCommitSubvenanceRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m WalkCommitSubvenanceRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m WalkCommitSubvenanceRequestMultiError) AllErrors() []error { return m }
+
+// WalkCommitSubvenanceRequestValidationError is the validation error returned
+// by WalkCommitSubvenanceRequest.Validate if the designated constraints
+// aren't met.
+type WalkCommitSubvenanceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e WalkCommitSubvenanceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e WalkCommitSubvenanceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e WalkCommitSubvenanceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e WalkCommitSubvenanceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e WalkCommitSubvenanceRequestValidationError) ErrorName() string {
+	return "WalkCommitSubvenanceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e WalkCommitSubvenanceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sWalkCommitSubvenanceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = WalkCommitSubvenanceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = WalkCommitSubvenanceRequestValidationError{}
+
 // Validate checks the field values on InspectBranchRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -6378,6 +7335,288 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteBranchRequestValidationError{}
+
+// Validate checks the field values on WalkBranchProvenanceRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *WalkBranchProvenanceRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on WalkBranchProvenanceRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// WalkBranchProvenanceRequestMultiError, or nil if none found.
+func (m *WalkBranchProvenanceRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *WalkBranchProvenanceRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetStart() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WalkBranchProvenanceRequestValidationError{
+						field:  fmt.Sprintf("Start[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WalkBranchProvenanceRequestValidationError{
+						field:  fmt.Sprintf("Start[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return WalkBranchProvenanceRequestValidationError{
+					field:  fmt.Sprintf("Start[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for MaxBranches
+
+	// no validation rules for MaxDepth
+
+	if len(errors) > 0 {
+		return WalkBranchProvenanceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// WalkBranchProvenanceRequestMultiError is an error wrapping multiple
+// validation errors returned by WalkBranchProvenanceRequest.ValidateAll() if
+// the designated constraints aren't met.
+type WalkBranchProvenanceRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m WalkBranchProvenanceRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m WalkBranchProvenanceRequestMultiError) AllErrors() []error { return m }
+
+// WalkBranchProvenanceRequestValidationError is the validation error returned
+// by WalkBranchProvenanceRequest.Validate if the designated constraints
+// aren't met.
+type WalkBranchProvenanceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e WalkBranchProvenanceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e WalkBranchProvenanceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e WalkBranchProvenanceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e WalkBranchProvenanceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e WalkBranchProvenanceRequestValidationError) ErrorName() string {
+	return "WalkBranchProvenanceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e WalkBranchProvenanceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sWalkBranchProvenanceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = WalkBranchProvenanceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = WalkBranchProvenanceRequestValidationError{}
+
+// Validate checks the field values on WalkBranchSubvenanceRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *WalkBranchSubvenanceRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on WalkBranchSubvenanceRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// WalkBranchSubvenanceRequestMultiError, or nil if none found.
+func (m *WalkBranchSubvenanceRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *WalkBranchSubvenanceRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetStart() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WalkBranchSubvenanceRequestValidationError{
+						field:  fmt.Sprintf("Start[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WalkBranchSubvenanceRequestValidationError{
+						field:  fmt.Sprintf("Start[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return WalkBranchSubvenanceRequestValidationError{
+					field:  fmt.Sprintf("Start[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for MaxBranches
+
+	// no validation rules for MaxDepth
+
+	if len(errors) > 0 {
+		return WalkBranchSubvenanceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// WalkBranchSubvenanceRequestMultiError is an error wrapping multiple
+// validation errors returned by WalkBranchSubvenanceRequest.ValidateAll() if
+// the designated constraints aren't met.
+type WalkBranchSubvenanceRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m WalkBranchSubvenanceRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m WalkBranchSubvenanceRequestMultiError) AllErrors() []error { return m }
+
+// WalkBranchSubvenanceRequestValidationError is the validation error returned
+// by WalkBranchSubvenanceRequest.Validate if the designated constraints
+// aren't met.
+type WalkBranchSubvenanceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e WalkBranchSubvenanceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e WalkBranchSubvenanceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e WalkBranchSubvenanceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e WalkBranchSubvenanceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e WalkBranchSubvenanceRequestValidationError) ErrorName() string {
+	return "WalkBranchSubvenanceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e WalkBranchSubvenanceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sWalkBranchSubvenanceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = WalkBranchSubvenanceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = WalkBranchSubvenanceRequestValidationError{}
 
 // Validate checks the field values on CreateProjectRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -11757,6 +12996,274 @@ var _ interface {
 	ErrorName() string
 } = EgressResponseValidationError{}
 
+// Validate checks the field values on RepoPicker_RepoName with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RepoPicker_RepoName) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RepoPicker_RepoName with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RepoPicker_RepoNameMultiError, or nil if none found.
+func (m *RepoPicker_RepoName) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RepoPicker_RepoName) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetProject()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RepoPicker_RepoNameValidationError{
+					field:  "Project",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RepoPicker_RepoNameValidationError{
+					field:  "Project",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProject()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RepoPicker_RepoNameValidationError{
+				field:  "Project",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Name
+
+	// no validation rules for Type
+
+	if len(errors) > 0 {
+		return RepoPicker_RepoNameMultiError(errors)
+	}
+
+	return nil
+}
+
+// RepoPicker_RepoNameMultiError is an error wrapping multiple validation
+// errors returned by RepoPicker_RepoName.ValidateAll() if the designated
+// constraints aren't met.
+type RepoPicker_RepoNameMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RepoPicker_RepoNameMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RepoPicker_RepoNameMultiError) AllErrors() []error { return m }
+
+// RepoPicker_RepoNameValidationError is the validation error returned by
+// RepoPicker_RepoName.Validate if the designated constraints aren't met.
+type RepoPicker_RepoNameValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RepoPicker_RepoNameValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RepoPicker_RepoNameValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RepoPicker_RepoNameValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RepoPicker_RepoNameValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RepoPicker_RepoNameValidationError) ErrorName() string {
+	return "RepoPicker_RepoNameValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RepoPicker_RepoNameValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRepoPicker_RepoName.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RepoPicker_RepoNameValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RepoPicker_RepoNameValidationError{}
+
+// Validate checks the field values on BranchPicker_BranchName with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *BranchPicker_BranchName) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BranchPicker_BranchName with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// BranchPicker_BranchNameMultiError, or nil if none found.
+func (m *BranchPicker_BranchName) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BranchPicker_BranchName) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetRepo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, BranchPicker_BranchNameValidationError{
+					field:  "Repo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, BranchPicker_BranchNameValidationError{
+					field:  "Repo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRepo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return BranchPicker_BranchNameValidationError{
+				field:  "Repo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return BranchPicker_BranchNameMultiError(errors)
+	}
+
+	return nil
+}
+
+// BranchPicker_BranchNameMultiError is an error wrapping multiple validation
+// errors returned by BranchPicker_BranchName.ValidateAll() if the designated
+// constraints aren't met.
+type BranchPicker_BranchNameMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BranchPicker_BranchNameMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BranchPicker_BranchNameMultiError) AllErrors() []error { return m }
+
+// BranchPicker_BranchNameValidationError is the validation error returned by
+// BranchPicker_BranchName.Validate if the designated constraints aren't met.
+type BranchPicker_BranchNameValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BranchPicker_BranchNameValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BranchPicker_BranchNameValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BranchPicker_BranchNameValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BranchPicker_BranchNameValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BranchPicker_BranchNameValidationError) ErrorName() string {
+	return "BranchPicker_BranchNameValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e BranchPicker_BranchNameValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBranchPicker_BranchName.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = BranchPicker_BranchNameValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BranchPicker_BranchNameValidationError{}
+
 // Validate checks the field values on RepoInfo_Details with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -11858,6 +13365,404 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RepoInfo_DetailsValidationError{}
+
+// Validate checks the field values on CommitPicker_CommitByGlobalId with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CommitPicker_CommitByGlobalId) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CommitPicker_CommitByGlobalId with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// CommitPicker_CommitByGlobalIdMultiError, or nil if none found.
+func (m *CommitPicker_CommitByGlobalId) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CommitPicker_CommitByGlobalId) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetRepo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CommitPicker_CommitByGlobalIdValidationError{
+					field:  "Repo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CommitPicker_CommitByGlobalIdValidationError{
+					field:  "Repo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRepo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CommitPicker_CommitByGlobalIdValidationError{
+				field:  "Repo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return CommitPicker_CommitByGlobalIdMultiError(errors)
+	}
+
+	return nil
+}
+
+// CommitPicker_CommitByGlobalIdMultiError is an error wrapping multiple
+// validation errors returned by CommitPicker_CommitByGlobalId.ValidateAll()
+// if the designated constraints aren't met.
+type CommitPicker_CommitByGlobalIdMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CommitPicker_CommitByGlobalIdMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CommitPicker_CommitByGlobalIdMultiError) AllErrors() []error { return m }
+
+// CommitPicker_CommitByGlobalIdValidationError is the validation error
+// returned by CommitPicker_CommitByGlobalId.Validate if the designated
+// constraints aren't met.
+type CommitPicker_CommitByGlobalIdValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CommitPicker_CommitByGlobalIdValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CommitPicker_CommitByGlobalIdValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CommitPicker_CommitByGlobalIdValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CommitPicker_CommitByGlobalIdValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CommitPicker_CommitByGlobalIdValidationError) ErrorName() string {
+	return "CommitPicker_CommitByGlobalIdValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CommitPicker_CommitByGlobalIdValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCommitPicker_CommitByGlobalId.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CommitPicker_CommitByGlobalIdValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CommitPicker_CommitByGlobalIdValidationError{}
+
+// Validate checks the field values on CommitPicker_StartOfBranch with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CommitPicker_StartOfBranch) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CommitPicker_StartOfBranch with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CommitPicker_StartOfBranchMultiError, or nil if none found.
+func (m *CommitPicker_StartOfBranch) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CommitPicker_StartOfBranch) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Offset
+
+	if all {
+		switch v := interface{}(m.GetBranch()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CommitPicker_StartOfBranchValidationError{
+					field:  "Branch",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CommitPicker_StartOfBranchValidationError{
+					field:  "Branch",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBranch()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CommitPicker_StartOfBranchValidationError{
+				field:  "Branch",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return CommitPicker_StartOfBranchMultiError(errors)
+	}
+
+	return nil
+}
+
+// CommitPicker_StartOfBranchMultiError is an error wrapping multiple
+// validation errors returned by CommitPicker_StartOfBranch.ValidateAll() if
+// the designated constraints aren't met.
+type CommitPicker_StartOfBranchMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CommitPicker_StartOfBranchMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CommitPicker_StartOfBranchMultiError) AllErrors() []error { return m }
+
+// CommitPicker_StartOfBranchValidationError is the validation error returned
+// by CommitPicker_StartOfBranch.Validate if the designated constraints aren't met.
+type CommitPicker_StartOfBranchValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CommitPicker_StartOfBranchValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CommitPicker_StartOfBranchValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CommitPicker_StartOfBranchValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CommitPicker_StartOfBranchValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CommitPicker_StartOfBranchValidationError) ErrorName() string {
+	return "CommitPicker_StartOfBranchValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CommitPicker_StartOfBranchValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCommitPicker_StartOfBranch.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CommitPicker_StartOfBranchValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CommitPicker_StartOfBranchValidationError{}
+
+// Validate checks the field values on CommitPicker_ParentOf with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CommitPicker_ParentOf) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CommitPicker_ParentOf with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CommitPicker_ParentOfMultiError, or nil if none found.
+func (m *CommitPicker_ParentOf) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CommitPicker_ParentOf) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetSelector()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CommitPicker_ParentOfValidationError{
+					field:  "Selector",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CommitPicker_ParentOfValidationError{
+					field:  "Selector",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSelector()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CommitPicker_ParentOfValidationError{
+				field:  "Selector",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return CommitPicker_ParentOfMultiError(errors)
+	}
+
+	return nil
+}
+
+// CommitPicker_ParentOfMultiError is an error wrapping multiple validation
+// errors returned by CommitPicker_ParentOf.ValidateAll() if the designated
+// constraints aren't met.
+type CommitPicker_ParentOfMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CommitPicker_ParentOfMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CommitPicker_ParentOfMultiError) AllErrors() []error { return m }
+
+// CommitPicker_ParentOfValidationError is the validation error returned by
+// CommitPicker_ParentOf.Validate if the designated constraints aren't met.
+type CommitPicker_ParentOfValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CommitPicker_ParentOfValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CommitPicker_ParentOfValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CommitPicker_ParentOfValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CommitPicker_ParentOfValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CommitPicker_ParentOfValidationError) ErrorName() string {
+	return "CommitPicker_ParentOfValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CommitPicker_ParentOfValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCommitPicker_ParentOf.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CommitPicker_ParentOfValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CommitPicker_ParentOfValidationError{}
 
 // Validate checks the field values on CommitInfo_Details with the rules
 // defined in the proto definition for this message. If any rules are

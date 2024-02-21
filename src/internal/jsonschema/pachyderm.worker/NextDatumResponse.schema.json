@@ -14,7 +14,7 @@
             "additionalProperties": false,
             "type": "object",
             "title": "Next Datum Response",
-            "description": "Env is a list of environment variables that should be set for the processing of the next datum."
+            "description": "Env is a list of environment variables that should be set for the processing\r of the next datum."
         }
     }
 }

@@ -1039,7 +1039,7 @@
     },
     "/enterprise_v2.API/Activate": {
       "post": {
-        "summary": "Provide a Pachyderm enterprise token, enabling Pachyderm enterprise\nfeatures, such as the Pachyderm Dashboard and Auth system",
+        "summary": "Provide a Pachyderm enterprise token, enabling Pachyderm enterprise\r\nfeatures, such as the Pachyderm Dashboard and Auth system",
         "operationId": "API_Activate",
         "responses": {
           "200": {
@@ -1127,7 +1127,7 @@
     },
     "/enterprise_v2.API/Heartbeat": {
       "post": {
-        "summary": "Heartbeat is used in testing to trigger a heartbeat on demand. Normally this happens\non a timer.",
+        "summary": "Heartbeat is used in testing to trigger a heartbeat on demand. Normally this happens\r\non a timer.",
         "operationId": "API_Heartbeat",
         "responses": {
           "200": {
@@ -1146,7 +1146,7 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Heartbeat in the enterprise service just triggers a heartbeat for\ntesting purposes. The RPC used to communicate with the license\nservice is defined in the license service.",
+            "description": "Heartbeat in the enterprise service just triggers a heartbeat for\r\ntesting purposes. The RPC used to communicate with the license\r\nservice is defined in the license service.",
             "in": "body",
             "required": true,
             "schema": {
@@ -1158,7 +1158,7 @@
     },
     "/enterprise_v2.API/Deactivate": {
       "post": {
-        "summary": "Deactivate removes a cluster's enterprise activation\ntoken and sets its enterprise state to NONE.",
+        "summary": "Deactivate removes a cluster's enterprise activation\r\ntoken and sets its enterprise state to NONE.",
         "operationId": "API_Deactivate",
         "responses": {
           "200": {
@@ -1654,7 +1654,7 @@
     },
     "/license_v2.API/Activate": {
       "post": {
-        "summary": "Activate enables the license service by setting the enterprise activation\ncode to serve.",
+        "summary": "Activate enables the license service by setting the enterprise activation\r\ncode to serve.",
         "operationId": "API_Activate",
         "responses": {
           "200": {
@@ -1861,7 +1861,7 @@
     },
     "/license_v2.API/Heartbeat": {
       "post": {
-        "summary": "Heartbeat is the RPC registered pachds make to the license server\nto communicate their status and fetch updates.",
+        "summary": "Heartbeat is the RPC registered pachds make to the license server\r\nto communicate their status and fetch updates.",
         "operationId": "API_Heartbeat",
         "responses": {
           "200": {
@@ -2340,6 +2340,84 @@
         ]
       }
     },
+    "/pfs_v2.API/WalkCommitProvenance": {
+      "post": {
+        "summary": "WalkCommitProvenance starts from one or more commits and returns a stream of all commits that are transitively provenant on that commit.",
+        "operationId": "API_WalkCommitProvenance",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/pfs_v2CommitInfo"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of pfs_v2CommitInfo"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pfs_v2WalkCommitProvenanceRequest"
+            }
+          }
+        ]
+      }
+    },
+    "/pfs_v2.API/WalkCommitSubvenance": {
+      "post": {
+        "summary": "WalkCommitSubvenance starts from one or more commits and returns a stream of all commits that are transitively subvenant on that commit.",
+        "operationId": "API_WalkCommitSubvenance",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/pfs_v2CommitInfo"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of pfs_v2CommitInfo"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pfs_v2WalkCommitSubvenanceRequest"
+            }
+          }
+        ]
+      }
+    },
     "/pfs_v2.API/InspectCommitSet": {
       "post": {
         "summary": "InspectCommitSet returns the info about a CommitSet.",
@@ -2645,6 +2723,84 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/pfs_v2DeleteBranchRequest"
+            }
+          }
+        ]
+      }
+    },
+    "/pfs_v2.API/WalkBranchProvenance": {
+      "post": {
+        "summary": "WalkBranchProvenance starts from one or more branches and returns a stream of all branches that are transitively provenant on that branch.",
+        "operationId": "API_WalkBranchProvenance",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/pfs_v2BranchInfo"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of pfs_v2BranchInfo"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pfs_v2WalkBranchProvenanceRequest"
+            }
+          }
+        ]
+      }
+    },
+    "/pfs_v2.API/WalkBranchSubvenance": {
+      "post": {
+        "summary": "WalkBranchSubvenance starts from one or more branches and returns a stream of all branches that are transitively subvenant on that branch.",
+        "operationId": "API_WalkBranchSubvenance",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/pfs_v2BranchInfo"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of pfs_v2BranchInfo"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pfs_v2WalkBranchProvenanceRequest"
             }
           }
         ]
@@ -5554,7 +5710,7 @@
     },
     "/pachyderm.worker.Worker/NextDatum": {
       "post": {
-        "summary": "NextDatum should only be called by user code running in a pipeline with\ndatum batching enabled.\nNextDatum will signal to the worker code that the user code is ready to\nproceed to the next datum. This generally means setting up the next\ndatum's filesystem state and updating internal metadata similarly to datum\nprocessing in a normal pipeline.\nNextDatum is a synchronous operation, so user code should expect to block\non this until the next datum is set up for processing.\nUser code should generally be migratable to datum batching by wrapping it\nin a loop that calls next datum.",
+        "summary": "NextDatum should only be called by user code running in a pipeline with\r\ndatum batching enabled.\r\nNextDatum will signal to the worker code that the user code is ready to\r\nproceed to the next datum. This generally means setting up the next\r\ndatum's filesystem state and updating internal metadata similarly to datum\r\nprocessing in a normal pipeline.\r\nNextDatum is a synchronous operation, so user code should expect to block\r\non this until the next datum is set up for processing.\r\nUser code should generally be migratable to datum batching by wrapping it\r\nin a loop that calls next datum.",
         "operationId": "Worker_NextDatum",
         "responses": {
           "200": {
@@ -5573,7 +5729,7 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Error indicates that the processing of the current datum errored.\nDatum error semantics with datum batching enabled are similar to datum error\nsemantics without datum batching enabled in that the datum may be retried,\nrecovered, or result with a job failure.",
+            "description": "Error indicates that the processing of the current datum errored.\r\nDatum error semantics with datum batching enabled are similar to datum error\r\nsemantics without datum batching enabled in that the datum may be retried,\r\nrecovered, or result with a job failure.",
             "in": "body",
             "required": true,
             "schema": {
@@ -5599,6 +5755,50 @@
           "format": "int64"
         }
       }
+    },
+    "BranchPickerBranchName": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "$ref": "#/definitions/pfs_v2RepoPicker"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "CommitPickerCommitByGlobalId": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "$ref": "#/definitions/pfs_v2RepoPicker"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "CommitPickerParentOf": {
+      "type": "object",
+      "properties": {
+        "selector": {
+          "$ref": "#/definitions/pfs_v2CommitPicker"
+        }
+      },
+      "title": "This models ^ syntax.\nBecause this is recursive, this should also model cases like id^^ or (id.2)^"
+    },
+    "CommitPickerStartOfBranch": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "branch": {
+          "$ref": "#/definitions/pfs_v2BranchPicker"
+        }
+      },
+      "description": "this models .N syntax."
     },
     "DumpV2RequestDefaults": {
       "type": "object",
@@ -5657,6 +5857,21 @@
       ],
       "default": "PIPELINT_TYPE_UNKNOWN",
       "description": "The pipeline type is stored here so that we can internally know the type of\nthe pipeline without loading the spec from PFS."
+    },
+    "RepoPickerRepoName": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "$ref": "#/definitions/pfs_v2ProjectPicker"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "description": "type is optional. If omitted, the default type is 'user'."
+        }
+      }
     },
     "SQLDatabaseEgressFileFormat": {
       "type": "object",
@@ -6821,13 +7036,13 @@
         },
         "activationCode": {
           "type": "string",
-          "title": "activation_code will always be an empty string,\ncall GetEnterpriseCode to get the activation code"
+          "title": "activation_code will always be an empty string,\r\ncall GetEnterpriseCode to get the activation code"
         }
       }
     },
     "enterprise_v2HeartbeatRequest": {
       "type": "object",
-      "description": "Heartbeat in the enterprise service just triggers a heartbeat for\ntesting purposes. The RPC used to communicate with the license\nservice is defined in the license service."
+      "description": "Heartbeat in the enterprise service just triggers a heartbeat for\r\ntesting purposes. The RPC used to communicate with the license\r\nservice is defined in the license service."
     },
     "enterprise_v2HeartbeatResponse": {
       "type": "object"
@@ -6843,7 +7058,7 @@
           "format": "date-time"
         }
       },
-      "title": "LicenseRecord is the record we store in etcd for a Pachyderm enterprise\ntoken that has been provided to a Pachyderm license server"
+      "title": "LicenseRecord is the record we store in etcd for a Pachyderm enterprise\r\ntoken that has been provided to a Pachyderm license server"
     },
     "enterprise_v2PauseRequest": {
       "type": "object"
@@ -6878,7 +7093,7 @@
         "expires": {
           "type": "string",
           "format": "date-time",
-          "title": "expires indicates when the current token expires (unset if there is no\ncurrent token)"
+          "title": "expires indicates when the current token expires (unset if there is no\r\ncurrent token)"
         }
       },
       "title": "TokenInfo contains information about the currently active enterprise token"
@@ -7127,12 +7342,12 @@
       "properties": {
         "activationCode": {
           "type": "string",
-          "title": "activation_code is a Pachyderm enterprise activation code. New users can\nobtain trial activation codes"
+          "title": "activation_code is a Pachyderm enterprise activation code. New users can\r\nobtain trial activation codes"
         },
         "expires": {
           "type": "string",
           "format": "date-time",
-          "description": "expires is a timestamp indicating when this activation code will expire.\nThis should not generally be set (it's primarily used for testing), and is\nonly applied if it's earlier than the signed expiration time in\n'activation_code'."
+          "description": "expires is a timestamp indicating when this activation code will expire.\r\nThis should not generally be set (it's primarily used for testing), and is\r\nonly applied if it's earlier than the signed expiration time in\r\n'activation_code'."
         }
       }
     },
@@ -7157,7 +7372,7 @@
         },
         "secret": {
           "type": "string",
-          "description": "If set, secret specifies the shared secret this cluster will use\nto authenticate to the license server. Otherwise a secret will be\ngenerated and returned in the response."
+          "description": "If set, secret specifies the shared secret this cluster will use\r\nto authenticate to the license server. Otherwise a secret will be\r\ngenerated and returned in the response."
         },
         "userAddress": {
           "type": "string",
@@ -7443,6 +7658,15 @@
         }
       }
     },
+    "pfs_v2BranchPicker": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/BranchPickerBranchName"
+        }
+      },
+      "description": "BranchPicker defines mutually exclusive pickers that resolve to a single branch.\nCurrently, the only way to pick a branch is by composing a branch name with a repo.\nPicker messages should only be used as request parameters."
+    },
     "pfs_v2CheckStorageRequest": {
       "type": "object",
       "properties": {
@@ -7553,7 +7777,7 @@
           "$ref": "#/definitions/pfs_v2CommitInfoDetails"
         }
       },
-      "title": "CommitInfo is the main data structure representing a commit in etcd"
+      "title": "CommitInfo is the main data structure representing a commit in postgres"
     },
     "pfs_v2CommitInfoDetails": {
       "type": "object",
@@ -7578,6 +7802,24 @@
           "$ref": "#/definitions/pfs_v2OriginKind"
         }
       }
+    },
+    "pfs_v2CommitPicker": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "$ref": "#/definitions/pfs_v2BranchPicker"
+        },
+        "id": {
+          "$ref": "#/definitions/CommitPickerCommitByGlobalId"
+        },
+        "parentOf": {
+          "$ref": "#/definitions/CommitPickerParentOf"
+        },
+        "startOfBranch": {
+          "$ref": "#/definitions/CommitPickerStartOfBranch"
+        }
+      },
+      "description": "CommitPicker defines mutually exclusive pickers that resolve to a single commit.\nCommits can be picked relatively from some other commit like a parent or start of branch.\nAlternatively, they can be picked via their global Id, which is composed of a repo picker and an id.\nPicker messages should only be used as request parameters."
     },
     "pfs_v2CommitSet": {
       "type": "object",
@@ -8297,6 +8539,15 @@
         }
       }
     },
+    "pfs_v2ProjectPicker": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "description": "ProjectPicker defines mutually exclusive pickers that resolve to a single project.\nCurrently, the only way to pick a project is by using a project name.\nPicker messages should only be used as request parameters."
+    },
     "pfs_v2PutCacheRequest": {
       "type": "object",
       "properties": {
@@ -8386,6 +8637,15 @@
         }
       },
       "title": "Details are only provided when explicitly requested"
+    },
+    "pfs_v2RepoPicker": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/RepoPickerRepoName"
+        }
+      },
+      "description": "Repo defines mutually exclusive pickers that resolve to a single repository.\nCurrently, the only way to pick a repo is by composing a repo name and type with a project.\nIf the type is omitted, the 'user' type will be used as a default.\nPicker messages should only be used as request parameters."
     },
     "pfs_v2SQLDatabaseEgress": {
       "type": "object",
@@ -8539,6 +8799,69 @@
         }
       },
       "description": "Trigger defines the conditions under which a head is moved, and to which\nbranch it is moved."
+    },
+    "pfs_v2WalkBranchProvenanceRequest": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pfs_v2BranchPicker"
+          }
+        },
+        "maxBranches": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The fields below are optional."
+        },
+        "maxDepth": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "pfs_v2WalkCommitProvenanceRequest": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pfs_v2CommitPicker"
+          }
+        },
+        "maxCommits": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The fields below are optional."
+        },
+        "maxDepth": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "pfs_v2WalkCommitSubvenanceRequest": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pfs_v2CommitPicker"
+          }
+        },
+        "maxCommits": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The fields below are optional."
+        },
+        "maxDepth": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
     },
     "pfs_v2WalkFileRequest": {
       "type": "object",
@@ -11080,7 +11403,7 @@
           "type": "string"
         }
       },
-      "description": "Error indicates that the processing of the current datum errored.\nDatum error semantics with datum batching enabled are similar to datum error\nsemantics without datum batching enabled in that the datum may be retried,\nrecovered, or result with a job failure."
+      "description": "Error indicates that the processing of the current datum errored.\r\nDatum error semantics with datum batching enabled are similar to datum error\r\nsemantics without datum batching enabled in that the datum may be retried,\r\nrecovered, or result with a job failure."
     },
     "workerNextDatumResponse": {
       "type": "object",
@@ -11092,7 +11415,7 @@
           }
         }
       },
-      "description": "Env is a list of environment variables that should be set for the processing\nof the next datum."
+      "description": "Env is a list of environment variables that should be set for the processing\r\nof the next datum."
     }
   }
 }
