@@ -5778,15 +5778,6 @@
         }
       }
     },
-    "CommitPickerParentOf": {
-      "type": "object",
-      "properties": {
-        "selector": {
-          "$ref": "#/definitions/pfs_v2CommitPicker"
-        }
-      },
-      "title": "This models ^ syntax.\nBecause this is recursive, this should also model cases like id^^ or (id.2)^"
-    },
     "CommitPickerStartOfBranch": {
       "type": "object",
       "properties": {
@@ -5798,7 +5789,7 @@
           "$ref": "#/definitions/pfs_v2BranchPicker"
         }
       },
-      "description": "this models .N syntax."
+      "description": "This models .N syntax."
     },
     "DumpV2RequestDefaults": {
       "type": "object",
@@ -7813,7 +7804,8 @@
           "$ref": "#/definitions/CommitPickerCommitByGlobalId"
         },
         "parentOf": {
-          "$ref": "#/definitions/CommitPickerParentOf"
+          "$ref": "#/definitions/pfs_v2CommitPicker",
+          "description": "This models ^ syntax recursively."
         },
         "startOfBranch": {
           "$ref": "#/definitions/CommitPickerStartOfBranch"

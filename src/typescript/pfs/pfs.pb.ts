@@ -162,16 +162,12 @@ export type CommitPickerStartOfBranch = {
   branch?: BranchPicker
 }
 
-export type CommitPickerParentOf = {
-  selector?: CommitPicker
-}
-
 
 type BaseCommitPicker = {
 }
 
 export type CommitPicker = BaseCommitPicker
-  & OneOf<{ branch: BranchPicker; id: CommitPickerCommitByGlobalId; parentOf: CommitPickerParentOf; startOfBranch: CommitPickerStartOfBranch }>
+  & OneOf<{ branch: BranchPicker; id: CommitPickerCommitByGlobalId; parentOf: CommitPicker; startOfBranch: CommitPickerStartOfBranch }>
 
 export type CommitInfoDetails = {
   sizeBytes?: string

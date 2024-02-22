@@ -13,8 +13,9 @@
                     "additionalProperties": false
                 },
                 "parentOf": {
-                    "$ref": "#/definitions/pfs_v2.CommitPicker.ParentOf",
-                    "additionalProperties": false
+                    "$ref": "#/definitions/CommitPicker",
+                    "additionalProperties": false,
+                    "description": "This models ^ syntax recursively."
                 },
                 "startOfBranch": {
                     "$ref": "#/definitions/pfs_v2.CommitPicker.StartOfBranch",
@@ -95,18 +96,6 @@
             "type": "object",
             "title": "Commit By Global Id"
         },
-        "pfs_v2.CommitPicker.ParentOf": {
-            "properties": {
-                "selector": {
-                    "$ref": "#/definitions/CommitPicker",
-                    "additionalProperties": false
-                }
-            },
-            "additionalProperties": false,
-            "type": "object",
-            "title": "Parent Of",
-            "description": "This models ^ syntax. Because this is recursive, this should also model cases like id^^ or (id.2)^"
-        },
         "pfs_v2.CommitPicker.StartOfBranch": {
             "properties": {
                 "offset": {
@@ -120,7 +109,7 @@
             "additionalProperties": false,
             "type": "object",
             "title": "Start Of Branch",
-            "description": "this models .N syntax."
+            "description": "This models .N syntax."
         },
         "pfs_v2.ProjectPicker": {
             "properties": {

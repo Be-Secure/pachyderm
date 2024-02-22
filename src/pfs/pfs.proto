@@ -161,22 +161,17 @@ message CommitPicker {
     string id = 2;
   }
 
-  // this models .N syntax.
+  // This models .N syntax.
   message StartOfBranch {
     uint32 offset = 1;
     BranchPicker branch = 2;
   }
 
-  // This models ^ syntax.
-  // Because this is recursive, this should also model cases like id^^ or (id.2)^
-  message ParentOf {
-    CommitPicker selector = 1;
-  }
-
   oneof picker {
     BranchPicker branch = 1;
     CommitByGlobalId id = 2;
-    ParentOf parent_of = 3;
+    // This models ^ syntax recursively.
+    CommitPicker parent_of = 3;
     StartOfBranch start_of_branch = 4;
   }
 }

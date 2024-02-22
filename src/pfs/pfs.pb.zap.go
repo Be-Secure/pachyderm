@@ -214,14 +214,6 @@ func (x *CommitPicker_StartOfBranch) MarshalLogObject(enc zapcore.ObjectEncoder)
 	return nil
 }
 
-func (x *CommitPicker_ParentOf) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	if x == nil {
-		return nil
-	}
-	enc.AddObject("selector", x.Selector)
-	return nil
-}
-
 func (x *CommitInfo) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	if x == nil {
 		return nil
