@@ -944,3 +944,23 @@ func (a *apiServer) Egress(ctx context.Context, req *pfs.EgressRequest) (*pfs.Eg
 	}
 	return nil, errors.Errorf("egress failed")
 }
+
+// WalkCommitProvenance implements the protobuf pfs.WalkCommitProvenance RPC
+func (a *apiServer) WalkCommitProvenance(request *pfs.WalkCommitProvenanceRequest, server pfs.API_WalkCommitProvenanceServer) (retErr error) {
+	return errors.New("walk commit provenance is unimplemented")
+}
+
+// WalkCommitSubvenance implements the protobuf pfs.WalkCommitSubvenance RPC
+func (a *apiServer) WalkCommitSubvenance(request *pfs.WalkCommitSubvenanceRequest, server pfs.API_WalkCommitSubvenanceServer) (retErr error) {
+	return errors.New("walk commit subvenance is unimplemented")
+}
+
+// WalkBranchProvenance implements the protobuf pfs.WalkBranchProvenance RPC
+func (a *apiServer) WalkBranchProvenance(request *pfs.WalkBranchProvenanceRequest, server pfs.API_WalkBranchProvenanceServer) (retErr error) {
+	return errors.New("walk branch provenance is unimplemented")
+}
+
+// WalkBranchSubvenance implements the protobuf pfs.WalkBranchSubvenance RPC
+func (a *apiServer) WalkBranchSubvenance(request *pfs.WalkBranchSubvenanceRequest, server pfs.API_WalkBranchSubvenanceServer) (retErr error) {
+	return errors.New("walk branch subvenance is unimplemented")
+}

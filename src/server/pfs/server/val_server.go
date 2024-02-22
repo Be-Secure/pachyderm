@@ -2,7 +2,10 @@ package server
 
 import (
 	"context"
-
+	"fmt"
+	"github.com/pachyderm/pachyderm/v2/src/internal/dbutil"
+	"github.com/pachyderm/pachyderm/v2/src/internal/pachsql"
+	"github.com/pachyderm/pachyderm/v2/src/internal/pfsdb"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/pachyderm/pachyderm/v2/src/auth"
@@ -234,6 +237,130 @@ func (a *validatedAPIServer) FindCommits(request *pfs.FindCommitsRequest, srv pf
 		}
 	}
 	return a.apiServer.FindCommits(request, srv)
+}
+
+func PickProject(projectPicker *pfs.ProjectPicker) (*pfs.Project, error) {
+	if projectPicker == nil || projectPicker.Picker == nil {
+		return nil, errors.New("project picker cannot be nil")
+	}
+	switch projectPicker.Picker.(type) {
+	case *pfs.ProjectPicker_Name:
+		return &pfs.Project{
+			Name: projectPicker.GetName(),
+		}, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("project picker is of an unknown type: %T", projectPicker.Picker))
+	}
+}
+
+func PickRepo(repoPicker *pfs.RepoPicker) (*pfs.Repo, error) {
+	if repoPicker == nil || repoPicker.Picker == nil {
+		return nil, errors.New("repo picker cannot be nil")
+	}
+	switch repoPicker.Picker.(type) {
+	case *pfs.RepoPicker_Name:
+		picker := repoPicker.GetName()
+		proj, err := PickProject(picker.Project)
+		if err != nil {
+			return nil, errors.Wrap(err, "picking repo")
+		}
+		repo := &pfs.Repo{
+			Project: proj,
+			Type:    pfs.UserRepoType,
+			Name:    picker.Name,
+		}
+		if picker.Type != "" {
+			repo.Type = picker.Type
+		}
+		return repo, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("repo picker is of an unknown type: %T", repoPicker.Picker))
+	}
+}
+
+func PickBranch(branchPicker *pfs.BranchPicker) (*pfs.Branch, error) {
+	if branchPicker == nil || branchPicker.Picker == nil {
+		return nil, errors.New("branch picker cannot be nil")
+	}
+	switch branchPicker.Picker.(type) {
+	case *pfs.BranchPicker_Name:
+		picker := branchPicker.GetName()
+		repo, err := PickRepo(picker.Repo)
+		if err != nil {
+			return nil, errors.Wrap(err, "picking branch")
+		}
+		branch := &pfs.Branch{
+			Repo: repo,
+			Name: picker.Name,
+		}
+		return branch, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("branch picker is of an unknown type: %T", branchPicker.Picker))
+	}
+}
+
+func PickCommit(ctx context.Context, commitPicker *pfs.CommitPicker, server *apiServer) (*pfs.Commit, error) {
+	if commitPicker == nil || commitPicker.Picker == nil {
+		return nil, errors.New("commit picker cannot be nil")
+	}
+	switch commitPicker.Picker.(type) {
+	case *pfs.CommitPicker_Id:
+		picker := commitPicker.GetId()
+		repo, err := PickRepo(picker.Repo)
+		if err != nil {
+			return nil, errors.Wrap(err, "picking commit")
+		}
+		return &pfs.Commit{
+			Repo: repo,
+			Id:   picker.Id,
+		}, nil
+	case *pfs.CommitPicker_Branch:
+		branch, err := PickBranch(commitPicker.GetBranch())
+		if err != nil {
+			return nil, errors.Wrap(err, "picking commit")
+		}
+		branchInfo, err := server.driver.inspectBranch(ctx, branch)
+		if err != nil {
+			return nil, errors.Wrap(err, "picking commit")
+		}
+		return branchInfo.Head, nil
+	case *pfs.CommitPicker_ParentOf:
+		return PickCommit(ctx, commitPicker.GetParentOf(), server)
+	case *pfs.CommitPicker_StartOfBranch_:
+		startOfBranch := commitPicker.GetStartOfBranch()
+		branch, err := PickBranch(startOfBranch.GetBranch())
+		if err != nil {
+			return nil, errors.Wrap(err, "picking commit")
+		}
+		branchInfo, err := server.driver.inspectBranch(ctx, branch)
+		if err != nil {
+			return nil, errors.Wrap(err, "picking commit")
+		}
+		if err := dbutil.WithTx(ctx, server.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
+			headCommitId, err := pfsdb.GetCommitID(ctx, tx, branchInfo.Head)
+			if err != nil {
+				return errors.Wrap(err, "picking commit")
+			}
+			ancestry, err := pfsdb.GetCommitAncestry(ctx, tx, headCommitId)
+			if err != nil {
+				return errors.Wrap(err, "picking commit")
+			}
+			commitPtr := ancestry.Root
+			for i := startOfBranch.Offset; i >= 0; i++ {
+
+			}
+		}); err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, errors.New(fmt.Sprintf("commit picker is of an unknown type: %T", commitPicker.Picker))
+	}
+}
+
+// ListFile implements the protobuf pfs.ListFile RPC
+func (a *validatedAPIServer) WalkCommitProvenance(request *pfs.WalkCommitProvenanceRequest, server pfs.API_WalkCommitProvenanceServer) (retErr error) {
+	return errors.New("unimplemented")
 }
 
 func validateFile(file *pfs.File) error {
