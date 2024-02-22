@@ -177,6 +177,20 @@ func (err *CommitAlreadyExistsError) GRPCStatus() *status.Status {
 	return status.New(codes.AlreadyExists, err.Error())
 }
 
+// TooManyCyclesError is returned when a recursive query iterates beyond a maximum depth.
+type TooManyCyclesError struct {
+	LastCommitSearched CommitID
+}
+
+// Error satisfies the error interface.
+func (err *TooManyCyclesError) Error() string {
+	return fmt.Sprintf("too many cycles")
+}
+
+func (err *TooManyCyclesError) GRPCStatus() *status.Status {
+	return status.New(codes.ResourceExhausted, err.Error())
+}
+
 // AncestryOpt allows users to create commitInfos and skip creating the ancestry information.
 // This allows a user to create the commits in an arbitrary order, then create their ancestry later.
 type AncestryOpt struct {
@@ -439,6 +453,14 @@ func GetCommitByCommitKey(ctx context.Context, tx *pachsql.Tx, commit *pfs.Commi
 	return pair.CommitInfo, nil
 }
 
+func GetCommitParentCommitID(ctx context.Context, tx *pachsql.Tx, childCommit CommitID) (CommitID, error) {
+	row, err := getCommitParentRow(ctx, tx, childCommit)
+	if err != nil {
+		return 0, errors.Wrap(err, "getting parent commit row")
+	}
+	return row.ID, nil
+}
+
 // GetCommitParent uses the pfs.commit_ancestry and pfs.commits tables to retrieve a commit given an int_id of
 // one of its children.
 func GetCommitParent(ctx context.Context, tx *pachsql.Tx, childCommit CommitID) (*pfs.Commit, error) {
@@ -483,6 +505,67 @@ func getCommitChildren(ctx context.Context, extCtx sqlx.ExtContext, parentCommit
 		return nil, &ChildCommitNotFoundError{ParentRowID: parentCommit}
 	}
 	return children, nil
+}
+
+type CommitAncestry struct {
+	Tree map[CommitID]CommitID
+	// Root may be nil if the query filling CommitAncestry returns a TooManyCyclesError.
+	Root CommitID
+}
+
+func GetCommitAncestry(ctx context.Context, extCtx sqlx.ExtContext, startId CommitID) (*CommitAncestry, error) {
+	ancestry := &CommitAncestry{
+		Tree: make(map[CommitID]CommitID),
+	}
+	isRoot := make(map[CommitID]bool)
+	if err := ForEachCommitAncestor(ctx, extCtx, startId, func(parentId, childId CommitID) error {
+		ancestry.Tree[parentId] = childId
+		delete(isRoot, childId)
+		isRoot[parentId] = true
+		return nil
+	}); err != nil {
+		if errors.As(err, new(*TooManyCyclesError)) {
+			return ancestry, err
+		}
+		return nil, errors.Wrap(err, "get commit ancestry")
+	}
+	for i := range isRoot {
+		ancestry.Root = i
+	}
+	return ancestry, nil
+}
+
+func ForEachCommitAncestor(ctx context.Context, extCtx sqlx.ExtContext, startId CommitID, cb func(parentId, childId CommitID) error) error {
+	query := `
+		WITH RECURSIVE ancestry AS (
+			SELECT parent, child FROM pfs.commit_ancestry WHERE child = $1 
+			UNION
+			SELECT ca.parent, ca.child FROM pfs.commit_ancestry ca
+			JOIN ancestry a ON ca.child = a.parent
+		)
+		SELECT a.parent, a.child
+		FROM ancestry a;
+			`
+	rows, err := extCtx.QueryContext(ctx, query, startId)
+	if err != nil {
+		return errors.Wrap(err, "get oldest commit ancestor")
+	}
+	defer rows.Close() //nolint:errcheck // not a big deal to drop an error here
+	iterations := 0
+	for rows.Next() {
+		var parent, child CommitID
+		if err := rows.Scan(&parent, &child); err != nil {
+			return errors.Wrap(err, "scanning parent and child row")
+		}
+		if err := cb(parent, child); err != nil {
+			return errors.Wrap(err, "calling cb() on parent and child")
+		}
+		iterations++
+		if iterations >= 1000 {
+			return &TooManyCyclesError{LastCommitSearched: parent}
+		}
+	}
+	return nil
 }
 
 func GetCommitSubvenance(ctx context.Context, tx *pachsql.Tx, commit *pfs.Commit) ([]*pfs.Commit, error) {
