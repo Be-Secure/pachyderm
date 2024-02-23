@@ -239,40 +239,59 @@ func (a *validatedAPIServer) FindCommits(request *pfs.FindCommitsRequest, srv pf
 	return a.apiServer.FindCommits(request, srv)
 }
 
-func PickProject(projectPicker *pfs.ProjectPicker) (*pfs.Project, error) {
+func (a *apiServer) PickProject(ctx context.Context, projectPicker *pfs.ProjectPicker) (*pfsdb.ProjectWithID, error) {
 	if projectPicker == nil || projectPicker.Picker == nil {
 		return nil, errors.New("project picker cannot be nil")
 	}
 	switch projectPicker.Picker.(type) {
 	case *pfs.ProjectPicker_Name:
-		return &pfs.Project{
-			Name: projectPicker.GetName(),
-		}, nil
+		var projectWithID *pfsdb.ProjectWithID
+		var err error
+		if err := dbutil.WithTx(ctx, a.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
+			projectWithID, err = pfsdb.GetProjectWithID(ctx, tx, projectPicker.GetName())
+			if err != nil {
+				return errors.New("picking project")
+			}
+			return nil
+		}); err != nil {
+			return nil, err
+		}
+		return projectWithID, nil
 	default:
 		return nil, errors.New(fmt.Sprintf("project picker is of an unknown type: %T", projectPicker.Picker))
 	}
 }
 
-func PickRepo(repoPicker *pfs.RepoPicker) (*pfs.Repo, error) {
+func (a *apiServer) PickRepo(ctx context.Context, repoPicker *pfs.RepoPicker) (*pfsdb.RepoInfoWithID, error) {
 	if repoPicker == nil || repoPicker.Picker == nil {
 		return nil, errors.New("repo picker cannot be nil")
 	}
 	switch repoPicker.Picker.(type) {
 	case *pfs.RepoPicker_Name:
 		picker := repoPicker.GetName()
-		proj, err := PickProject(picker.Project)
+		proj, err := a.PickProject(ctx, picker.Project)
 		if err != nil {
 			return nil, errors.Wrap(err, "picking repo")
 		}
 		repo := &pfs.Repo{
-			Project: proj,
+			Project: proj.ProjectInfo.Project,
 			Type:    pfs.UserRepoType,
 			Name:    picker.Name,
 		}
 		if picker.Type != "" {
 			repo.Type = picker.Type
 		}
-		return repo, nil
+		var repoInfoWithID *pfsdb.RepoInfoWithID
+		if err := dbutil.WithTx(ctx, a.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
+			repoInfoWithID, err = pfsdb.GetRepoInfoWithID(ctx, tx, repo.Project.Name, repo.Name, repo.Type)
+			if err != nil {
+				return errors.New("picking repo")
+			}
+			return nil
+		}); err != nil {
+			return nil, err
+		}
+		return repoInfoWithID, nil
 	default:
 		return nil, errors.New(fmt.Sprintf("repo picker is of an unknown type: %T", repoPicker.Picker))
 	}
@@ -285,14 +304,14 @@ func (a *apiServer) PickBranch(ctx context.Context, branchPicker *pfs.BranchPick
 	switch branchPicker.Picker.(type) {
 	case *pfs.BranchPicker_Name:
 		picker := branchPicker.GetName()
-		repo, err := PickRepo(picker.Repo)
+		repo, err := a.PickRepo(ctx, picker.Repo)
 		if err != nil {
 			return nil, errors.Wrap(err, "picking branch")
 		}
 		var branchInfoWithID *pfsdb.BranchInfoWithID
 		if err := dbutil.WithTx(ctx, a.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
 			branchInfoWithID, err = pfsdb.GetBranchInfoWithID(ctx, tx, &pfs.Branch{
-				Repo: repo,
+				Repo: repo.RepoInfo.Repo,
 				Name: picker.Name,
 			})
 			if err != nil {
@@ -366,14 +385,14 @@ func (a *apiServer) PickCommit(ctx context.Context, commitPicker *pfs.CommitPick
 }
 
 func (a *apiServer) pickCommitGlobalID(ctx context.Context, picker *pfs.CommitPicker_CommitByGlobalId) (*pfsdb.CommitWithID, error) {
-	repo, err := PickRepo(picker.Repo)
+	repo, err := a.PickRepo(ctx, picker.Repo)
 	if err != nil {
 		return nil, errors.Wrap(err, "picking commit")
 	}
 	var commitWithID *pfsdb.CommitWithID
 	if err := dbutil.WithTx(ctx, a.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
 		commitWithID, err = pfsdb.GetCommitWithIDByKey(ctx, tx, &pfs.Commit{
-			Repo: repo,
+			Repo: repo.RepoInfo.Repo,
 			Id:   picker.Id,
 		})
 		return errors.Wrap(err, "picking commit")

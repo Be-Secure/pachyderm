@@ -115,7 +115,21 @@ func GetRepoID(ctx context.Context, tx *pachsql.Tx, repoProject, repoName, repoT
 	return row.ID, nil
 }
 
-// todo(fahad): rewrite branch related code during the branches migration.
+func GetRepoInfoWithID(ctx context.Context, tx *pachsql.Tx, repoProject, repoName, repoType string) (*RepoInfoWithID, error) {
+	repo, err := getRepoByName(ctx, tx, repoProject, repoName, repoType)
+	if err != nil {
+		return nil, errors.Wrap(err, "get repo info with id")
+	}
+	repoInfo, err := repo.PbInfo()
+	if err != nil {
+		return nil, errors.Wrap(err, "get repo info with id")
+	}
+	return &RepoInfoWithID{
+		ID:       repo.ID,
+		RepoInfo: repoInfo,
+	}, nil
+}
+
 // GetRepo retrieves an entry from the pfs.repos table by using the row id.
 func GetRepo(ctx context.Context, tx *pachsql.Tx, id RepoID) (*pfs.RepoInfo, error) {
 	if id == 0 {
