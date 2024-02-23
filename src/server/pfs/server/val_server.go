@@ -299,7 +299,7 @@ func PickBranch(branchPicker *pfs.BranchPicker) (*pfs.Branch, error) {
 	}
 }
 
-func PickCommit(ctx context.Context, commitPicker *pfs.CommitPicker, server *apiServer) (*pfs.Commit, error) {
+func PickCommit(ctx context.Context, commitPicker *pfs.CommitPicker, server *apiServer) (*pfsdb.CommitWithID, error) {
 	if commitPicker == nil || commitPicker.Picker == nil {
 		return nil, errors.New("commit picker cannot be nil")
 	}
@@ -310,52 +310,106 @@ func PickCommit(ctx context.Context, commitPicker *pfs.CommitPicker, server *api
 		if err != nil {
 			return nil, errors.Wrap(err, "picking commit")
 		}
-		return &pfs.Commit{
-			Repo: repo,
-			Id:   picker.Id,
-		}, nil
-	case *pfs.CommitPicker_Branch:
-		branch, err := PickBranch(commitPicker.GetBranch())
-		if err != nil {
-			return nil, errors.Wrap(err, "picking commit")
-		}
-		branchInfo, err := server.driver.inspectBranch(ctx, branch)
-		if err != nil {
-			return nil, errors.Wrap(err, "picking commit")
-		}
-		return branchInfo.Head, nil
-	case *pfs.CommitPicker_ParentOf:
-		return PickCommit(ctx, commitPicker.GetParentOf(), server)
-	case *pfs.CommitPicker_StartOfBranch_:
-		startOfBranch := commitPicker.GetStartOfBranch()
-		branch, err := PickBranch(startOfBranch.GetBranch())
-		if err != nil {
-			return nil, errors.Wrap(err, "picking commit")
-		}
-		branchInfo, err := server.driver.inspectBranch(ctx, branch)
-		if err != nil {
-			return nil, errors.Wrap(err, "picking commit")
-		}
+		var commitWithID *pfsdb.CommitWithID
 		if err := dbutil.WithTx(ctx, server.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
-			headCommitId, err := pfsdb.GetCommitID(ctx, tx, branchInfo.Head)
-			if err != nil {
-				return errors.Wrap(err, "picking commit")
-			}
-			ancestry, err := pfsdb.GetCommitAncestry(ctx, tx, headCommitId)
-			if err != nil {
-				return errors.Wrap(err, "picking commit")
-			}
-			commitPtr := ancestry.Root
-			for i := startOfBranch.Offset; i >= 0; i++ {
-
-			}
+			commitWithID, err = pfsdb.GetCommitWithIDByKey(ctx, tx, &pfs.Commit{
+				Repo: repo,
+				Id:   picker.Id,
+			})
+			return errors.Wrap(err, "picking commit")
 		}); err != nil {
 			return nil, err
 		}
+		return commitWithID, nil
+	case *pfs.CommitPicker_BranchHead:
+		branch, err := PickBranch(commitPicker.GetBranchHead())
+		if err != nil {
+			return nil, errors.Wrap(err, "picking commit")
+		}
+		branchInfo, err := server.driver.inspectBranch(ctx, branch)
+		if err != nil {
+			return nil, errors.Wrap(err, "picking commit")
+		}
+		var commitWithID *pfsdb.CommitWithID
+		if err := dbutil.WithTx(ctx, server.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
+			commitWithID, err = pfsdb.GetCommitWithIDByKey(ctx, tx, branchInfo.Head)
+			return errors.Wrap(err, "picking commit")
+		}); err != nil {
+			return nil, err
+		}
+		return commitWithID, nil
+	case *pfs.CommitPicker_Ancestor:
+		startCommit, err := PickCommit(ctx, commitPicker.GetAncestor().Start, server)
+		if err != nil {
+			return nil, errors.Wrap(err, "picking commit")
+		}
+		var commitWithID *pfsdb.CommitWithID
+		if err := dbutil.WithTx(ctx, server.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
+			ancestry, err := pfsdb.GetCommitAncestry(ctx, tx, startCommit.ID, uint(commitPicker.GetAncestor().Offset))
+			if err != nil {
+				return errors.Wrap(err, "picking commit")
+			}
+			commitPtr := ancestry.EarliestDiscovered
+			for i := commitPicker.GetAncestor().Offset; i > 0; i-- {
+				commitPtr = ancestry.Lineage[commitPtr]
+			}
+			commitInfo, err := pfsdb.GetCommit(ctx, tx, commitPtr)
+			if err != nil {
+				return errors.Wrap(err, "picking commit")
+			}
+			commitWithID = &pfsdb.CommitWithID{
+				ID:         commitPtr,
+				CommitInfo: commitInfo,
+			}
+			return errors.Wrap(err, "picking commit")
+		}); err != nil {
+			return nil, err
+		}
+		return commitWithID, nil
 
+	case *pfs.CommitPicker_BranchRoot_:
+		return pickCommitBranchRoot(ctx, commitPicker.GetBranchRoot(), server)
 	default:
 		return nil, errors.New(fmt.Sprintf("commit picker is of an unknown type: %T", commitPicker.Picker))
 	}
+}
+
+func pickCommitBranchRoot(ctx context.Context, branchRoot *pfs.CommitPicker_BranchRoot, server *apiServer) (*pfsdb.CommitWithID, error) {
+	branch, err := PickBranch(branchRoot.GetBranch())
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	branchInfo, err := server.driver.inspectBranch(ctx, branch)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	var commitWithID *pfsdb.CommitWithID
+	if err := dbutil.WithTx(ctx, server.driver.env.DB, func(cbCtx context.Context, tx *pachsql.Tx) error {
+		headCommitId, err := pfsdb.GetCommitID(ctx, tx, branchInfo.Head)
+		if err != nil {
+			return errors.Wrap(err, "picking commit")
+		}
+		ancestry, err := pfsdb.GetCommitAncestry(ctx, tx, headCommitId, 0)
+		if err != nil {
+			return errors.Wrap(err, "picking commit")
+		}
+		commitPtr := ancestry.EarliestDiscovered
+		for i := branchRoot.Offset; i > 0; i-- {
+			commitPtr = ancestry.Lineage[commitPtr]
+		}
+		commitInfo, err := pfsdb.GetCommit(ctx, tx, commitPtr)
+		if err != nil {
+			return errors.Wrap(err, "picking commit")
+		}
+		commitWithID = &pfsdb.CommitWithID{
+			ID:         commitPtr,
+			CommitInfo: commitInfo,
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return commitWithID, nil
 }
 
 // ListFile implements the protobuf pfs.ListFile RPC
