@@ -271,14 +271,10 @@ class CommitPicker(betterproto.Message):
     should only be used as request parameters.
     """
 
-    branch: "BranchPicker" = betterproto.message_field(1, group="picker")
+    branch_head: "BranchPicker" = betterproto.message_field(1, group="picker")
     id: "CommitPickerCommitByGlobalId" = betterproto.message_field(2, group="picker")
-    parent_of: "CommitPicker" = betterproto.message_field(3, group="picker")
-    """This models ^ syntax recursively."""
-
-    start_of_branch: "CommitPickerStartOfBranch" = betterproto.message_field(
-        4, group="picker"
-    )
+    ancestor: "CommitPickerAncestorOf" = betterproto.message_field(3, group="picker")
+    branch_root: "CommitPickerBranchRoot" = betterproto.message_field(4, group="picker")
 
 
 @dataclass(eq=False, repr=False)
@@ -288,11 +284,19 @@ class CommitPickerCommitByGlobalId(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class CommitPickerStartOfBranch(betterproto.Message):
+class CommitPickerBranchRoot(betterproto.Message):
     """This models .N syntax."""
 
     offset: int = betterproto.uint32_field(1)
     branch: "BranchPicker" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class CommitPickerAncestorOf(betterproto.Message):
+    """This models ^ syntax recursively."""
+
+    offset: int = betterproto.uint32_field(1)
+    start: "CommitPicker" = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)

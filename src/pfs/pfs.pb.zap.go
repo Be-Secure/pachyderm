@@ -189,10 +189,10 @@ func (x *CommitPicker) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	if x == nil {
 		return nil
 	}
-	enc.AddObject("branch", x.GetBranch())
+	enc.AddObject("branch_head", x.GetBranchHead())
 	enc.AddObject("id", x.GetId())
-	enc.AddObject("parent_of", x.GetParentOf())
-	enc.AddObject("start_of_branch", x.GetStartOfBranch())
+	enc.AddObject("ancestor", x.GetAncestor())
+	enc.AddObject("branch_root", x.GetBranchRoot())
 	return nil
 }
 
@@ -205,12 +205,21 @@ func (x *CommitPicker_CommitByGlobalId) MarshalLogObject(enc zapcore.ObjectEncod
 	return nil
 }
 
-func (x *CommitPicker_StartOfBranch) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (x *CommitPicker_BranchRoot) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	if x == nil {
 		return nil
 	}
 	enc.AddUint32("offset", x.Offset)
 	enc.AddObject("branch", x.Branch)
+	return nil
+}
+
+func (x *CommitPicker_AncestorOf) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	if x == nil {
+		return nil
+	}
+	enc.AddUint32("offset", x.Offset)
+	enc.AddObject("start", x.Start)
 	return nil
 }
 

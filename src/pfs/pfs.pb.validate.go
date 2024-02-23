@@ -1752,7 +1752,7 @@ func (m *CommitPicker) validate(all bool) error {
 	var errors []error
 
 	switch v := m.Picker.(type) {
-	case *CommitPicker_Branch:
+	case *CommitPicker_BranchHead:
 		if v == nil {
 			err := CommitPickerValidationError{
 				field:  "Picker",
@@ -1765,11 +1765,11 @@ func (m *CommitPicker) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetBranch()).(type) {
+			switch v := interface{}(m.GetBranchHead()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, CommitPickerValidationError{
-						field:  "Branch",
+						field:  "BranchHead",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1777,16 +1777,16 @@ func (m *CommitPicker) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, CommitPickerValidationError{
-						field:  "Branch",
+						field:  "BranchHead",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetBranch()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetBranchHead()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CommitPickerValidationError{
-					field:  "Branch",
+					field:  "BranchHead",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -1834,7 +1834,7 @@ func (m *CommitPicker) validate(all bool) error {
 			}
 		}
 
-	case *CommitPicker_ParentOf:
+	case *CommitPicker_Ancestor:
 		if v == nil {
 			err := CommitPickerValidationError{
 				field:  "Picker",
@@ -1847,11 +1847,11 @@ func (m *CommitPicker) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetParentOf()).(type) {
+			switch v := interface{}(m.GetAncestor()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, CommitPickerValidationError{
-						field:  "ParentOf",
+						field:  "Ancestor",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1859,23 +1859,23 @@ func (m *CommitPicker) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, CommitPickerValidationError{
-						field:  "ParentOf",
+						field:  "Ancestor",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetParentOf()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetAncestor()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CommitPickerValidationError{
-					field:  "ParentOf",
+					field:  "Ancestor",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
 			}
 		}
 
-	case *CommitPicker_StartOfBranch_:
+	case *CommitPicker_BranchRoot_:
 		if v == nil {
 			err := CommitPickerValidationError{
 				field:  "Picker",
@@ -1888,11 +1888,11 @@ func (m *CommitPicker) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStartOfBranch()).(type) {
+			switch v := interface{}(m.GetBranchRoot()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, CommitPickerValidationError{
-						field:  "StartOfBranch",
+						field:  "BranchRoot",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1900,16 +1900,16 @@ func (m *CommitPicker) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, CommitPickerValidationError{
-						field:  "StartOfBranch",
+						field:  "BranchRoot",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStartOfBranch()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetBranchRoot()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CommitPickerValidationError{
-					field:  "StartOfBranch",
+					field:  "BranchRoot",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -13500,22 +13500,22 @@ var _ interface {
 	ErrorName() string
 } = CommitPicker_CommitByGlobalIdValidationError{}
 
-// Validate checks the field values on CommitPicker_StartOfBranch with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on CommitPicker_BranchRoot with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *CommitPicker_StartOfBranch) Validate() error {
+func (m *CommitPicker_BranchRoot) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on CommitPicker_StartOfBranch with the
+// ValidateAll checks the field values on CommitPicker_BranchRoot with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// CommitPicker_StartOfBranchMultiError, or nil if none found.
-func (m *CommitPicker_StartOfBranch) ValidateAll() error {
+// CommitPicker_BranchRootMultiError, or nil if none found.
+func (m *CommitPicker_BranchRoot) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *CommitPicker_StartOfBranch) validate(all bool) error {
+func (m *CommitPicker_BranchRoot) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -13528,7 +13528,7 @@ func (m *CommitPicker_StartOfBranch) validate(all bool) error {
 		switch v := interface{}(m.GetBranch()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, CommitPicker_StartOfBranchValidationError{
+				errors = append(errors, CommitPicker_BranchRootValidationError{
 					field:  "Branch",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -13536,7 +13536,7 @@ func (m *CommitPicker_StartOfBranch) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, CommitPicker_StartOfBranchValidationError{
+				errors = append(errors, CommitPicker_BranchRootValidationError{
 					field:  "Branch",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -13545,7 +13545,7 @@ func (m *CommitPicker_StartOfBranch) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetBranch()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return CommitPicker_StartOfBranchValidationError{
+			return CommitPicker_BranchRootValidationError{
 				field:  "Branch",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -13554,19 +13554,19 @@ func (m *CommitPicker_StartOfBranch) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return CommitPicker_StartOfBranchMultiError(errors)
+		return CommitPicker_BranchRootMultiError(errors)
 	}
 
 	return nil
 }
 
-// CommitPicker_StartOfBranchMultiError is an error wrapping multiple
-// validation errors returned by CommitPicker_StartOfBranch.ValidateAll() if
-// the designated constraints aren't met.
-type CommitPicker_StartOfBranchMultiError []error
+// CommitPicker_BranchRootMultiError is an error wrapping multiple validation
+// errors returned by CommitPicker_BranchRoot.ValidateAll() if the designated
+// constraints aren't met.
+type CommitPicker_BranchRootMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m CommitPicker_StartOfBranchMultiError) Error() string {
+func (m CommitPicker_BranchRootMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -13575,11 +13575,11 @@ func (m CommitPicker_StartOfBranchMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m CommitPicker_StartOfBranchMultiError) AllErrors() []error { return m }
+func (m CommitPicker_BranchRootMultiError) AllErrors() []error { return m }
 
-// CommitPicker_StartOfBranchValidationError is the validation error returned
-// by CommitPicker_StartOfBranch.Validate if the designated constraints aren't met.
-type CommitPicker_StartOfBranchValidationError struct {
+// CommitPicker_BranchRootValidationError is the validation error returned by
+// CommitPicker_BranchRoot.Validate if the designated constraints aren't met.
+type CommitPicker_BranchRootValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -13587,24 +13587,24 @@ type CommitPicker_StartOfBranchValidationError struct {
 }
 
 // Field function returns field value.
-func (e CommitPicker_StartOfBranchValidationError) Field() string { return e.field }
+func (e CommitPicker_BranchRootValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CommitPicker_StartOfBranchValidationError) Reason() string { return e.reason }
+func (e CommitPicker_BranchRootValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CommitPicker_StartOfBranchValidationError) Cause() error { return e.cause }
+func (e CommitPicker_BranchRootValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CommitPicker_StartOfBranchValidationError) Key() bool { return e.key }
+func (e CommitPicker_BranchRootValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CommitPicker_StartOfBranchValidationError) ErrorName() string {
-	return "CommitPicker_StartOfBranchValidationError"
+func (e CommitPicker_BranchRootValidationError) ErrorName() string {
+	return "CommitPicker_BranchRootValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CommitPicker_StartOfBranchValidationError) Error() string {
+func (e CommitPicker_BranchRootValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -13616,14 +13616,14 @@ func (e CommitPicker_StartOfBranchValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCommitPicker_StartOfBranch.%s: %s%s",
+		"invalid %sCommitPicker_BranchRoot.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CommitPicker_StartOfBranchValidationError{}
+var _ error = CommitPicker_BranchRootValidationError{}
 
 var _ interface {
 	Field() string
@@ -13631,7 +13631,140 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CommitPicker_StartOfBranchValidationError{}
+} = CommitPicker_BranchRootValidationError{}
+
+// Validate checks the field values on CommitPicker_AncestorOf with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CommitPicker_AncestorOf) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CommitPicker_AncestorOf with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CommitPicker_AncestorOfMultiError, or nil if none found.
+func (m *CommitPicker_AncestorOf) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CommitPicker_AncestorOf) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Offset
+
+	if all {
+		switch v := interface{}(m.GetStart()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CommitPicker_AncestorOfValidationError{
+					field:  "Start",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CommitPicker_AncestorOfValidationError{
+					field:  "Start",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetStart()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CommitPicker_AncestorOfValidationError{
+				field:  "Start",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return CommitPicker_AncestorOfMultiError(errors)
+	}
+
+	return nil
+}
+
+// CommitPicker_AncestorOfMultiError is an error wrapping multiple validation
+// errors returned by CommitPicker_AncestorOf.ValidateAll() if the designated
+// constraints aren't met.
+type CommitPicker_AncestorOfMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CommitPicker_AncestorOfMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CommitPicker_AncestorOfMultiError) AllErrors() []error { return m }
+
+// CommitPicker_AncestorOfValidationError is the validation error returned by
+// CommitPicker_AncestorOf.Validate if the designated constraints aren't met.
+type CommitPicker_AncestorOfValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CommitPicker_AncestorOfValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CommitPicker_AncestorOfValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CommitPicker_AncestorOfValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CommitPicker_AncestorOfValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CommitPicker_AncestorOfValidationError) ErrorName() string {
+	return "CommitPicker_AncestorOfValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CommitPicker_AncestorOfValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCommitPicker_AncestorOf.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CommitPicker_AncestorOfValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CommitPicker_AncestorOfValidationError{}
 
 // Validate checks the field values on CommitInfo_Details with the rules
 // defined in the proto definition for this message. If any rules are

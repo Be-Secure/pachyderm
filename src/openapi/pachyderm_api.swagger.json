@@ -5767,18 +5767,20 @@
         }
       }
     },
-    "CommitPickerCommitByGlobalId": {
+    "CommitPickerAncestorOf": {
       "type": "object",
       "properties": {
-        "repo": {
-          "$ref": "#/definitions/pfs_v2RepoPicker"
+        "offset": {
+          "type": "integer",
+          "format": "int64"
         },
-        "id": {
-          "type": "string"
+        "start": {
+          "$ref": "#/definitions/pfs_v2CommitPicker"
         }
-      }
+      },
+      "description": "This models ^ syntax recursively."
     },
-    "CommitPickerStartOfBranch": {
+    "CommitPickerBranchRoot": {
       "type": "object",
       "properties": {
         "offset": {
@@ -5790,6 +5792,17 @@
         }
       },
       "description": "This models .N syntax."
+    },
+    "CommitPickerCommitByGlobalId": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "$ref": "#/definitions/pfs_v2RepoPicker"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
     },
     "DumpV2RequestDefaults": {
       "type": "object",
@@ -7797,18 +7810,17 @@
     "pfs_v2CommitPicker": {
       "type": "object",
       "properties": {
-        "branch": {
+        "branchHead": {
           "$ref": "#/definitions/pfs_v2BranchPicker"
         },
         "id": {
           "$ref": "#/definitions/CommitPickerCommitByGlobalId"
         },
-        "parentOf": {
-          "$ref": "#/definitions/pfs_v2CommitPicker",
-          "description": "This models ^ syntax recursively."
+        "ancestor": {
+          "$ref": "#/definitions/CommitPickerAncestorOf"
         },
-        "startOfBranch": {
-          "$ref": "#/definitions/CommitPickerStartOfBranch"
+        "branchRoot": {
+          "$ref": "#/definitions/CommitPickerBranchRoot"
         }
       },
       "description": "CommitPicker defines mutually exclusive pickers that resolve to a single commit.\nCommits can be picked relatively from some other commit like a parent or start of branch.\nAlternatively, they can be picked via their global Id, which is composed of a repo picker and an id.\nPicker messages should only be used as request parameters."

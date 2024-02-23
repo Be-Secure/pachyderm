@@ -58,7 +58,7 @@
         },
         "pfs_v2.CommitPicker": {
             "properties": {
-                "branch": {
+                "branchHead": {
                     "$ref": "#/definitions/pfs_v2.BranchPicker",
                     "additionalProperties": false
                 },
@@ -66,13 +66,12 @@
                     "$ref": "#/definitions/pfs_v2.CommitPicker.CommitByGlobalId",
                     "additionalProperties": false
                 },
-                "parentOf": {
-                    "$ref": "#/definitions/pfs_v2.CommitPicker",
-                    "additionalProperties": false,
-                    "description": "This models ^ syntax recursively."
+                "ancestor": {
+                    "$ref": "#/definitions/pfs_v2.CommitPicker.AncestorOf",
+                    "additionalProperties": false
                 },
-                "startOfBranch": {
-                    "$ref": "#/definitions/pfs_v2.CommitPicker.StartOfBranch",
+                "branchRoot": {
+                    "$ref": "#/definitions/pfs_v2.CommitPicker.BranchRoot",
                     "additionalProperties": false
                 }
             },
@@ -81,7 +80,7 @@
             "oneOf": [
                 {
                     "required": [
-                        "branch"
+                        "branch_head"
                     ]
                 },
                 {
@@ -91,17 +90,47 @@
                 },
                 {
                     "required": [
-                        "parent_of"
+                        "ancestor"
                     ]
                 },
                 {
                     "required": [
-                        "start_of_branch"
+                        "branch_root"
                     ]
                 }
             ],
             "title": "Commit Picker",
             "description": "CommitPicker defines mutually exclusive pickers that resolve to a single commit. Commits can be picked relatively from some other commit like a parent or start of branch. Alternatively, they can be picked via their global Id, which is composed of a repo picker and an id. Picker messages should only be used as request parameters."
+        },
+        "pfs_v2.CommitPicker.AncestorOf": {
+            "properties": {
+                "offset": {
+                    "type": "integer"
+                },
+                "start": {
+                    "$ref": "#/definitions/pfs_v2.CommitPicker",
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "title": "Ancestor Of",
+            "description": "This models ^ syntax recursively."
+        },
+        "pfs_v2.CommitPicker.BranchRoot": {
+            "properties": {
+                "offset": {
+                    "type": "integer"
+                },
+                "branch": {
+                    "$ref": "#/definitions/pfs_v2.BranchPicker",
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "title": "TODO: add a picker option to pick commit by uuid.\n the uuid could be generated using AES so that it doesn't have to be stored.",
+            "description": "TODO: add a picker option to pick commit by uuid. the uuid could be generated using AES so that it doesn't have to be stored.  This models .N syntax."
         },
         "pfs_v2.CommitPicker.CommitByGlobalId": {
             "properties": {
@@ -116,21 +145,6 @@
             "additionalProperties": false,
             "type": "object",
             "title": "Commit By Global Id"
-        },
-        "pfs_v2.CommitPicker.StartOfBranch": {
-            "properties": {
-                "offset": {
-                    "type": "integer"
-                },
-                "branch": {
-                    "$ref": "#/definitions/pfs_v2.BranchPicker",
-                    "additionalProperties": false
-                }
-            },
-            "additionalProperties": false,
-            "type": "object",
-            "title": "Start Of Branch",
-            "description": "This models .N syntax."
         },
         "pfs_v2.ProjectPicker": {
             "properties": {

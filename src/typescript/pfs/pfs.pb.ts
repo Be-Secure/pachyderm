@@ -157,9 +157,14 @@ export type CommitPickerCommitByGlobalId = {
   id?: string
 }
 
-export type CommitPickerStartOfBranch = {
+export type CommitPickerBranchRoot = {
   offset?: number
   branch?: BranchPicker
+}
+
+export type CommitPickerAncestorOf = {
+  offset?: number
+  start?: CommitPicker
 }
 
 
@@ -167,7 +172,7 @@ type BaseCommitPicker = {
 }
 
 export type CommitPicker = BaseCommitPicker
-  & OneOf<{ branch: BranchPicker; id: CommitPickerCommitByGlobalId; parentOf: CommitPicker; startOfBranch: CommitPickerStartOfBranch }>
+  & OneOf<{ branchHead: BranchPicker; id: CommitPickerCommitByGlobalId; ancestor: CommitPickerAncestorOf; branchRoot: CommitPickerBranchRoot }>
 
 export type CommitInfoDetails = {
   sizeBytes?: string
