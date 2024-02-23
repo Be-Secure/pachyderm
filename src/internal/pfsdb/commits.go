@@ -22,6 +22,8 @@ import (
 )
 
 const (
+	DefaultMaxSearchDepth = 1000
+
 	// CommitsChannelName is used to watch events for the commits table.
 	CommitsChannelName     = "pfs_commits"
 	CommitsRepoChannelName = "pfs_commits_repo_"
@@ -177,17 +179,18 @@ func (err *CommitAlreadyExistsError) GRPCStatus() *status.Status {
 	return status.New(codes.AlreadyExists, err.Error())
 }
 
-// TooManyCyclesError is returned when a recursive query iterates beyond a maximum depth.
-type TooManyCyclesError struct {
+// MaxDepthReachedError is returned when a recursive query iterates beyond a maximum depth.
+type MaxDepthReachedError struct {
 	LastCommitSearched CommitID
+	Depth              int
 }
 
 // Error satisfies the error interface.
-func (err *TooManyCyclesError) Error() string {
-	return fmt.Sprintf("too many cycles")
+func (err *MaxDepthReachedError) Error() string {
+	return fmt.Sprintf("max depth reached")
 }
 
-func (err *TooManyCyclesError) GRPCStatus() *status.Status {
+func (err *MaxDepthReachedError) GRPCStatus() *status.Status {
 	return status.New(codes.ResourceExhausted, err.Error())
 }
 
@@ -507,35 +510,43 @@ func getCommitChildren(ctx context.Context, extCtx sqlx.ExtContext, parentCommit
 	return children, nil
 }
 
+// CommitAncestry models a lineage of the CommitID values of the ancestors of Start.
 type CommitAncestry struct {
-	Tree map[CommitID]CommitID
-	// Root may be nil if the query filling CommitAncestry returns a TooManyCyclesError.
-	Root CommitID
+	Start              CommitID
+	Lineage            map[CommitID]CommitID
+	EarliestDiscovered CommitID // EarliestDiscovered is the root of the commit ancestry tree if FoundRoot is true.
+	FoundRoot          bool     // FoundRoot is true if GetCommitAncestry reaches a root of a commit ancestry tree.
 }
 
-func GetCommitAncestry(ctx context.Context, extCtx sqlx.ExtContext, startId CommitID) (*CommitAncestry, error) {
+// GetCommitAncestry returns a graph of
+func GetCommitAncestry(ctx context.Context, extCtx sqlx.ExtContext, startId CommitID, maxDepth uint) (*CommitAncestry, error) {
 	ancestry := &CommitAncestry{
-		Tree: make(map[CommitID]CommitID),
+		Start:     startId,
+		Lineage:   make(map[CommitID]CommitID),
+		FoundRoot: true,
 	}
-	isRoot := make(map[CommitID]bool)
-	if err := ForEachCommitAncestor(ctx, extCtx, startId, func(parentId, childId CommitID) error {
-		ancestry.Tree[parentId] = childId
-		delete(isRoot, childId)
-		isRoot[parentId] = true
+	earliestAncestor := make(map[CommitID]bool)
+	if err := ForEachCommitAncestor(ctx, extCtx, startId, maxDepth, func(parentId, childId CommitID) error {
+		ancestry.Lineage[parentId] = childId
+		delete(earliestAncestor, childId)
+		earliestAncestor[parentId] = true
 		return nil
 	}); err != nil {
-		if errors.As(err, new(*TooManyCyclesError)) {
-			return ancestry, err
+		if !errors.As(err, new(*MaxDepthReachedError)) {
+			ancestry.FoundRoot = false
+		} else {
+			return nil, errors.Wrap(err, "get commit ancestry")
 		}
-		return nil, errors.Wrap(err, "get commit ancestry")
 	}
-	for i := range isRoot {
-		ancestry.Root = i
+	for i := range earliestAncestor {
+		ancestry.EarliestDiscovered = i
 	}
 	return ancestry, nil
 }
 
-func ForEachCommitAncestor(ctx context.Context, extCtx sqlx.ExtContext, startId CommitID, cb func(parentId, childId CommitID) error) error {
+// ForEachCommitAncestor queries postgres for ancestors of startId up to the maxDepth. cb() is called for each ancestor.
+// maxDepth is optional.
+func ForEachCommitAncestor(ctx context.Context, extCtx sqlx.ExtContext, startId CommitID, maxDepth uint, cb func(parentId, childId CommitID) error) error {
 	query := `
 		WITH RECURSIVE ancestry AS (
 			SELECT parent, child FROM pfs.commit_ancestry WHERE child = $1 
@@ -551,7 +562,10 @@ func ForEachCommitAncestor(ctx context.Context, extCtx sqlx.ExtContext, startId 
 		return errors.Wrap(err, "get oldest commit ancestor")
 	}
 	defer rows.Close() //nolint:errcheck // not a big deal to drop an error here
-	iterations := 0
+	if maxDepth == 0 {
+		maxDepth = DefaultMaxSearchDepth
+	}
+	depth := uint(0)
 	for rows.Next() {
 		var parent, child CommitID
 		if err := rows.Scan(&parent, &child); err != nil {
@@ -560,9 +574,9 @@ func ForEachCommitAncestor(ctx context.Context, extCtx sqlx.ExtContext, startId 
 		if err := cb(parent, child); err != nil {
 			return errors.Wrap(err, "calling cb() on parent and child")
 		}
-		iterations++
-		if iterations >= 1000 {
-			return &TooManyCyclesError{LastCommitSearched: parent}
+		depth++
+		if depth >= maxDepth {
+			return &MaxDepthReachedError{LastCommitSearched: parent}
 		}
 	}
 	return nil

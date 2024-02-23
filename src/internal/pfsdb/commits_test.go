@@ -604,11 +604,11 @@ func TestGetCommitAncestry(t *testing.T) {
 		}
 		startId := pfsdb.CommitID(12)
 		withTx(t, ctx, db, func(ctx context.Context, tx *pachsql.Tx) {
-			ancestry, err := pfsdb.GetCommitAncestry(ctx, tx, startId)
+			ancestry, err := pfsdb.GetCommitAncestry(ctx, tx, startId, 0)
 			require.NoError(t, err, "should be able to get ancestry")
-			require.Equal(t, ancestry.Root, pfsdb.CommitID(7), "root should be 7, (1-6) should be a separate tree")
+			require.Equal(t, ancestry.EarliestDiscovered, pfsdb.CommitID(7), "root should be 7, (1-6) should be a separate tree")
 			expected := map[pfsdb.CommitID]pfsdb.CommitID{7: 8, 8: 9, 9: 10, 10: 11, 11: 12}
-			if diff := cmp.Diff(expected, ancestry.Tree,
+			if diff := cmp.Diff(expected, ancestry.Lineage,
 				cmpopts.SortMaps(func(a, b string) bool { return a < b })); diff != "" {
 				t.Errorf("commits ancestries differ: (-want +got)\n%s", diff)
 			}
