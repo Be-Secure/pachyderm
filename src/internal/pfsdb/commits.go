@@ -846,9 +846,9 @@ func parseCommitInfoFromRow(row *Commit) *pfs.CommitInfo {
 
 // CommitWithID is returned by the commit iterator.
 type CommitWithID struct {
-	ID         CommitID
-	CommitInfo *pfs.CommitInfo
-	Revision   int64
+	ID CommitID
+	*pfs.CommitInfo
+	Revision int64
 }
 
 // this dropped global variable instantiation forces the compiler to check whether CommitIterator implements stream.Iterator.
