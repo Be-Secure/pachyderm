@@ -532,7 +532,7 @@ func GetCommitAncestry(ctx context.Context, extCtx sqlx.ExtContext, startId Comm
 		earliestAncestor[parentId] = true
 		return nil
 	}); err != nil {
-		if !errors.As(err, new(*MaxDepthReachedError)) {
+		if errors.As(err, new(*MaxDepthReachedError)) {
 			ancestry.FoundRoot = false
 		} else {
 			return nil, errors.Wrap(err, "get commit ancestry")

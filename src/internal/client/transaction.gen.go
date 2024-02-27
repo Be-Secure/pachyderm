@@ -498,7 +498,7 @@ func (c *unsupportedPfsBuilderClient) WalkBranchProvenance(_ context.Context, _ 
 	return nil, unsupportedError("WalkBranchProvenance")
 }
 
-func (c *unsupportedPfsBuilderClient) WalkBranchSubvenance(_ context.Context, _ *pfs_v2.WalkBranchProvenanceRequest, opts ...grpc.CallOption) (pfs_v2.API_WalkBranchSubvenanceClient, error) {
+func (c *unsupportedPfsBuilderClient) WalkBranchSubvenance(_ context.Context, _ *pfs_v2.WalkBranchSubvenanceRequest, opts ...grpc.CallOption) (pfs_v2.API_WalkBranchSubvenanceClient, error) {
 	return nil, unsupportedError("WalkBranchSubvenance")
 }
 

@@ -37,8 +37,7 @@ func (err *ProjectNotFoundError) Error() string {
 }
 
 func (err *ProjectNotFoundError) Is(other error) bool {
-	_, ok := other.(*ProjectNotFoundError)
-	return ok
+	return errors.As(other, &ProjectNotFoundError{})
 }
 
 func (err *ProjectNotFoundError) GRPCStatus() *status.Status {
@@ -216,7 +215,7 @@ func getProject(ctx context.Context, tx *pachsql.Tx, where string, whereVal inte
 	project := &pfs.ProjectInfo{Project: &pfs.Project{}}
 	id := 0
 	var createdAt time.Time
-	err := row.Scan(&id, &project.Project.Name, &project.Description, &createdAt)
+	err := row.Scan(&project.Project.Name, &project.Description, &createdAt, &id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			if name, ok := whereVal.(string); ok {

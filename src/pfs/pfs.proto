@@ -803,7 +803,7 @@ service API {
   // WalkBranchProvenance starts from one or more branches and returns a stream of all branches that are transitively provenant on that branch.
   rpc WalkBranchProvenance(WalkBranchProvenanceRequest) returns (stream BranchInfo) {}
   // WalkBranchSubvenance starts from one or more branches and returns a stream of all branches that are transitively subvenant on that branch.
-  rpc WalkBranchSubvenance(WalkBranchProvenanceRequest) returns (stream BranchInfo) {}
+  rpc WalkBranchSubvenance(WalkBranchSubvenanceRequest) returns (stream BranchInfo) {}
 
 
   // ModifyFile performs modifications on a set of files.

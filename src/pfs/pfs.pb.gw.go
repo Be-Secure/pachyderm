@@ -794,7 +794,7 @@ func request_API_WalkBranchProvenance_0(ctx context.Context, marshaler runtime.M
 }
 
 func request_API_WalkBranchSubvenance_0(ctx context.Context, marshaler runtime.Marshaler, client APIClient, req *http.Request, pathParams map[string]string) (API_WalkBranchSubvenanceClient, runtime.ServerMetadata, error) {
-	var protoReq WalkBranchProvenanceRequest
+	var protoReq WalkBranchSubvenanceRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

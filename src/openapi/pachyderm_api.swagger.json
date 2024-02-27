@@ -2800,7 +2800,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/pfs_v2WalkBranchProvenanceRequest"
+              "$ref": "#/definitions/pfs_v2WalkBranchSubvenanceRequest"
             }
           }
         ]
@@ -8805,6 +8805,27 @@
       "description": "Trigger defines the conditions under which a head is moved, and to which\nbranch it is moved."
     },
     "pfs_v2WalkBranchProvenanceRequest": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pfs_v2BranchPicker"
+          }
+        },
+        "maxBranches": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The fields below are optional."
+        },
+        "maxDepth": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "pfs_v2WalkBranchSubvenanceRequest": {
       "type": "object",
       "properties": {
         "start": {

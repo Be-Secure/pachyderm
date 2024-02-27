@@ -1086,7 +1086,7 @@ class ApiStub:
         )
         self.__rpc_walk_branch_subvenance = channel.unary_stream(
             "/pfs_v2.API/WalkBranchSubvenance",
-            request_serializer=WalkBranchProvenanceRequest.SerializeToString,
+            request_serializer=WalkBranchSubvenanceRequest.SerializeToString,
             response_deserializer=BranchInfo.FromString,
         )
         self.__rpc_modify_file = channel.stream_unary(
@@ -1593,7 +1593,7 @@ class ApiStub:
     ) -> Iterator["BranchInfo"]:
         start = start or []
 
-        request = WalkBranchProvenanceRequest()
+        request = WalkBranchSubvenanceRequest()
         if start is not None:
             request.start = start
         request.max_branches = max_branches
@@ -2584,8 +2584,8 @@ class ApiBase:
             ),
             "WalkBranchSubvenance": grpc.unary_stream_rpc_method_handler(
                 self.walk_branch_subvenance,
-                request_deserializer=WalkBranchProvenanceRequest.FromString,
-                response_serializer=WalkBranchProvenanceRequest.SerializeToString,
+                request_deserializer=WalkBranchSubvenanceRequest.FromString,
+                response_serializer=WalkBranchSubvenanceRequest.SerializeToString,
             ),
             "ModifyFile": grpc.stream_unary_rpc_method_handler(
                 self.modify_file,

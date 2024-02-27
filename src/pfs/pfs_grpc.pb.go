@@ -140,7 +140,7 @@ type APIClient interface {
 	// WalkBranchProvenance starts from one or more branches and returns a stream of all branches that are transitively provenant on that branch.
 	WalkBranchProvenance(ctx context.Context, in *WalkBranchProvenanceRequest, opts ...grpc.CallOption) (API_WalkBranchProvenanceClient, error)
 	// WalkBranchSubvenance starts from one or more branches and returns a stream of all branches that are transitively subvenant on that branch.
-	WalkBranchSubvenance(ctx context.Context, in *WalkBranchProvenanceRequest, opts ...grpc.CallOption) (API_WalkBranchSubvenanceClient, error)
+	WalkBranchSubvenance(ctx context.Context, in *WalkBranchSubvenanceRequest, opts ...grpc.CallOption) (API_WalkBranchSubvenanceClient, error)
 	// ModifyFile performs modifications on a set of files.
 	ModifyFile(ctx context.Context, opts ...grpc.CallOption) (API_ModifyFileClient, error)
 	// GetFile returns the contents of a single file
@@ -660,7 +660,7 @@ func (x *aPIWalkBranchProvenanceClient) Recv() (*BranchInfo, error) {
 	return m, nil
 }
 
-func (c *aPIClient) WalkBranchSubvenance(ctx context.Context, in *WalkBranchProvenanceRequest, opts ...grpc.CallOption) (API_WalkBranchSubvenanceClient, error) {
+func (c *aPIClient) WalkBranchSubvenance(ctx context.Context, in *WalkBranchSubvenanceRequest, opts ...grpc.CallOption) (API_WalkBranchSubvenanceClient, error) {
 	stream, err := c.cc.NewStream(ctx, &API_ServiceDesc.Streams[10], API_WalkBranchSubvenance_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
@@ -1263,7 +1263,7 @@ type APIServer interface {
 	// WalkBranchProvenance starts from one or more branches and returns a stream of all branches that are transitively provenant on that branch.
 	WalkBranchProvenance(*WalkBranchProvenanceRequest, API_WalkBranchProvenanceServer) error
 	// WalkBranchSubvenance starts from one or more branches and returns a stream of all branches that are transitively subvenant on that branch.
-	WalkBranchSubvenance(*WalkBranchProvenanceRequest, API_WalkBranchSubvenanceServer) error
+	WalkBranchSubvenance(*WalkBranchSubvenanceRequest, API_WalkBranchSubvenanceServer) error
 	// ModifyFile performs modifications on a set of files.
 	ModifyFile(API_ModifyFileServer) error
 	// GetFile returns the contents of a single file
@@ -1400,7 +1400,7 @@ func (UnimplementedAPIServer) DeleteBranch(context.Context, *DeleteBranchRequest
 func (UnimplementedAPIServer) WalkBranchProvenance(*WalkBranchProvenanceRequest, API_WalkBranchProvenanceServer) error {
 	return status.Errorf(codes.Unimplemented, "method WalkBranchProvenance not implemented")
 }
-func (UnimplementedAPIServer) WalkBranchSubvenance(*WalkBranchProvenanceRequest, API_WalkBranchSubvenanceServer) error {
+func (UnimplementedAPIServer) WalkBranchSubvenance(*WalkBranchSubvenanceRequest, API_WalkBranchSubvenanceServer) error {
 	return status.Errorf(codes.Unimplemented, "method WalkBranchSubvenance not implemented")
 }
 func (UnimplementedAPIServer) ModifyFile(API_ModifyFileServer) error {
@@ -1981,7 +1981,7 @@ func (x *aPIWalkBranchProvenanceServer) Send(m *BranchInfo) error {
 }
 
 func _API_WalkBranchSubvenance_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(WalkBranchProvenanceRequest)
+	m := new(WalkBranchSubvenanceRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
