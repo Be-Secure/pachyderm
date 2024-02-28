@@ -73,14 +73,12 @@ type driver struct {
 	txnEnv     *txnenv.TransactionEnv
 	prefix     string
 
-	// collections
-	commits  col.PostgresCollection
-	branches col.PostgresCollection
-
 	storage     *storage.Server
 	commitStore commitStore
 
 	cache *fileset.Cache
+
+	picker *picker
 }
 
 func newDriver(env Env) (*driver, error) {
@@ -92,8 +90,6 @@ func newDriver(env Env) (*driver, error) {
 	}(); err != nil {
 		return nil, err
 	}
-	commits := pfsdb.Commits(env.DB, env.Listener)
-	branches := pfsdb.Branches(env.DB, env.Listener)
 
 	// Setup driver struct.
 	d := &driver{
@@ -101,8 +97,9 @@ func newDriver(env Env) (*driver, error) {
 		etcdClient: env.EtcdClient,
 		txnEnv:     env.TxnEnv,
 		prefix:     env.EtcdPrefix,
-		commits:    commits,
-		branches:   branches,
+		picker: &picker{
+			db: env.DB,
+		},
 	}
 	storageEnv := storage.Env{DB: env.DB}
 	if env.Bucket != nil {
