@@ -15,7 +15,7 @@
             "additionalProperties": false,
             "type": "object",
             "title": "Enterprise data structures",
-            "description": "Enterprise data structures  LicenseRecord is the record we store in etcd for a Pachyderm enterprise\r token that has been provided to a Pachyderm license server"
+            "description": "Enterprise data structures  LicenseRecord is the record we store in etcd for a Pachyderm enterprise token that has been provided to a Pachyderm license server"
         }
     }
 }

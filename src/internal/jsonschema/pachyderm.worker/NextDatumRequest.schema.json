@@ -11,7 +11,7 @@
             "additionalProperties": false,
             "type": "object",
             "title": "Next Datum Request",
-            "description": "Error indicates that the processing of the current datum errored.\r Datum error semantics with datum batching enabled are similar to datum error\r semantics without datum batching enabled in that the datum may be retried,\r recovered, or result with a job failure."
+            "description": "Error indicates that the processing of the current datum errored. Datum error semantics with datum batching enabled are similar to datum error semantics without datum batching enabled in that the datum may be retried, recovered, or result with a job failure."
         }
     }
 }

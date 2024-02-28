@@ -76,8 +76,8 @@ class AddClusterRequest(betterproto.Message):
 
     secret: str = betterproto.string_field(3)
     """
-    If set, secret specifies the shared secret this cluster will use  to
-    authenticate to the license server. Otherwise a secret will be  generated
+    If set, secret specifies the shared secret this cluster will use to
+    authenticate to the license server. Otherwise a secret will be generated
     and returned in the response.
     """
 

@@ -47,15 +47,15 @@
                 },
                 "serverCas": {
                     "type": "string",
-                    "description": "Trusted root certificates (overrides installed certificates), formatted\r as base64-encoded PEM."
+                    "description": "Trusted root certificates (overrides installed certificates), formatted as base64-encoded PEM."
                 },
                 "sessionToken": {
                     "type": "string",
-                    "description": "A secret token identifying the current pachctl user within their\r pachyderm cluster. This is included in all RPCs sent by pachctl, and used\r to determine if pachctl actions are authorized."
+                    "description": "A secret token identifying the current pachctl user within their pachyderm cluster. This is included in all RPCs sent by pachctl, and used to determine if pachctl actions are authorized."
                 },
                 "activeTransaction": {
                     "type": "string",
-                    "description": "The currently active transaction for batching together pachctl commands.\r This can be set or cleared via many of the `pachctl * transaction` commands.\r This is the ID of the transaction object stored in the pachyderm etcd."
+                    "description": "The currently active transaction for batching together pachctl commands. This can be set or cleared via many of the `pachctl * transaction` commands. This is the ID of the transaction object stored in the pachyderm etcd."
                 },
                 "clusterName": {
                     "type": "string",
@@ -74,15 +74,15 @@
                         "type": "integer"
                     },
                     "type": "object",
-                    "description": "A mapping of service -\u003e port number, when port forwarding is\r running for this context."
+                    "description": "A mapping of service -\u003e port number, when port forwarding is running for this context."
                 },
                 "clusterDeploymentId": {
                     "type": "string",
-                    "description": "A unique ID for the cluster deployment. At client initialization time,\r we ensure this is the same as what the cluster reports back, to prevent\r us from connecting to the wrong cluster."
+                    "description": "A unique ID for the cluster deployment. At client initialization time, we ensure this is the same as what the cluster reports back, to prevent us from connecting to the wrong cluster."
                 },
                 "enterpriseServer": {
                     "type": "boolean",
-                    "description": "A boolean that records whether the context points at an enterprise server.\r If false, the context points at a stand-alone pachd."
+                    "description": "A boolean that records whether the context points at an enterprise server. If false, the context points at a stand-alone pachd."
                 },
                 "project": {
                     "type": "string",

@@ -6,7 +6,7 @@
             "additionalProperties": false,
             "type": "object",
             "title": "Heartbeat Request",
-            "description": "Heartbeat in the enterprise service just triggers a heartbeat for\r testing purposes. The RPC used to communicate with the license\r service is defined in the license service."
+            "description": "Heartbeat in the enterprise service just triggers a heartbeat for testing purposes. The RPC used to communicate with the license service is defined in the license service."
         }
     }
 }

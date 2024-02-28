@@ -20,7 +20,7 @@
                 },
                 "activationCode": {
                     "type": "string",
-                    "description": "activation_code will always be an empty string,\r call GetEnterpriseCode to get the activation code"
+                    "description": "activation_code will always be an empty string, call GetEnterpriseCode to get the activation code"
                 }
             },
             "additionalProperties": false,
@@ -31,7 +31,7 @@
             "properties": {
                 "expires": {
                     "type": "string",
-                    "description": "expires indicates when the current token expires (unset if there is no\r current token)",
+                    "description": "expires indicates when the current token expires (unset if there is no current token)",
                     "format": "date-time"
                 }
             },

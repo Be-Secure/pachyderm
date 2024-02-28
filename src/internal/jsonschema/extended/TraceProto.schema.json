@@ -9,20 +9,20 @@
                         "type": "string"
                     },
                     "type": "object",
-                    "description": "serialized_trace contains the info identifying a trace in Jaeger (a\r (trace ID, span ID, sampled) tuple, basically)"
+                    "description": "serialized_trace contains the info identifying a trace in Jaeger (a (trace ID, span ID, sampled) tuple, basically)"
                 },
                 "project": {
                     "type": "string"
                 },
                 "pipeline": {
                     "type": "string",
-                    "description": "pipeline specifies the target pipeline of this trace; this would be set for\r a trace created by 'pachctl create-pipeline' or 'pachctl update-pipeline'\r and would include the kubernetes RPCs involved in creating a pipeline"
+                    "description": "pipeline specifies the target pipeline of this trace; this would be set for a trace created by 'pachctl create-pipeline' or 'pachctl update-pipeline' and would include the kubernetes RPCs involved in creating a pipeline"
                 }
             },
             "additionalProperties": false,
             "type": "object",
             "title": "Trace Proto",
-            "description": "TraceProto contains information identifying a Jaeger trace. It's used to\r propagate traces that follow the lifetime of a long operation (e.g. creating\r a pipeline or running a job), and which live longer than any single RPC."
+            "description": "TraceProto contains information identifying a Jaeger trace. It's used to propagate traces that follow the lifetime of a long operation (e.g. creating a pipeline or running a job), and which live longer than any single RPC."
         }
     }
 }

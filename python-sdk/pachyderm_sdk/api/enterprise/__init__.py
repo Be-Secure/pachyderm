@@ -46,7 +46,7 @@ class LicenseRecord(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class EnterpriseConfig(betterproto.Message):
     """
-    EnterpriseConfig is the configuration we store for heartbeating  to the
+    EnterpriseConfig is the configuration we store for heartbeating to the
     license server.
     """
 
@@ -55,7 +55,7 @@ class EnterpriseConfig(betterproto.Message):
 
     id: str = betterproto.string_field(2)
     """
-    id is the unique identifier for this pachd, which is registered  with the
+    id is the unique identifier for this pachd, which is registered with the
     license service
     """
 
@@ -66,7 +66,7 @@ class EnterpriseConfig(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class EnterpriseRecord(betterproto.Message):
     """
-    EnterpriseRecord is a protobuf we cache in etcd to store the  enterprise
+    EnterpriseRecord is a protobuf we cache in etcd to store the enterprise
     status.
     """
 
@@ -78,15 +78,15 @@ class EnterpriseRecord(betterproto.Message):
 
     last_heartbeat: datetime = betterproto.message_field(2)
     """
-    last_heartbeat is the timestamp of the last successful heartbeat  to the
+    last_heartbeat is the timestamp of the last successful heartbeat to the
     license server
     """
 
     heartbeat_failed: bool = betterproto.bool_field(3)
     """
-    heartbeat_failed is set if the license is still valid, but  the pachd is no
-    longer registered with an enterprise server.  This is the same as the
-    expired state, where auth is locked  but not disabled.
+    heartbeat_failed is set if the license is still valid, but the pachd is no
+    longer registered with an enterprise server. This is the same as the
+    expired state, where auth is locked but not disabled.
     """
 
 
@@ -126,7 +126,7 @@ class GetStateResponse(betterproto.Message):
     info: "TokenInfo" = betterproto.message_field(2)
     activation_code: str = betterproto.string_field(3)
     """
-    activation_code will always be an empty string,  call GetEnterpriseCode to
+    activation_code will always be an empty string, call GetEnterpriseCode to
     get the activation code
     """
 
@@ -146,8 +146,8 @@ class GetActivationCodeResponse(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class HeartbeatRequest(betterproto.Message):
     """
-    Heartbeat in the enterprise service just triggers a heartbeat for  testing
-    purposes. The RPC used to communicate with the license  service is defined
+    Heartbeat in the enterprise service just triggers a heartbeat for testing
+    purposes. The RPC used to communicate with the license service is defined
     in the license service.
     """
 
