@@ -1262,7 +1262,7 @@ func (a *apiServer) CreateDatum(server pps.API_CreateDatumServer) (retErr error)
 	}
 	for {
 		number := msg.Number
-		if number == 0 {
+		if number <= 0 {
 			number = DefaultDatumBatchSize
 		}
 		if err := errors.EnsureStack(it.Iterate(func(meta *datum.Meta) error {
@@ -1310,7 +1310,7 @@ func (a *apiServer) getStreamingIterator(ctx context.Context, input *pps.Input) 
 	}
 	pachClient := a.env.GetPachClient(ctx)
 	taskDoer := a.env.TaskService.NewDoer(driver.PreprocessingTaskNamespace(nil), uuid.NewWithoutDashes(), nil)
-	it := datum.NewCreateDatumStreamIterator(pachClient.Ctx(), pachClient.PfsAPIClient, taskDoer, input)
+	it := datum.NewStreamingDatumIterator(pachClient.Ctx(), pachClient.PfsAPIClient, taskDoer, input)
 	return it, nil
 }
 

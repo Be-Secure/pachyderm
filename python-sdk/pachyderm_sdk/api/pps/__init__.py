@@ -852,6 +852,11 @@ class ListDatumRequestFilter(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class CreateDatumRequest(betterproto.Message):
+    """
+    Emits a stream of datums as they are created from the given input. Client
+    must cancel the stream when it no longer wants to receive datums.
+    """
+
     input: "Input" = betterproto.message_field(1)
     """
     Input is the input to list datums from. The datums listed are the ones

@@ -4010,6 +4010,8 @@ func (x *ListDatumRequest) GetReverse() bool {
 	return false
 }
 
+// Emits a stream of datums as they are created from the given input. Client
+// must cancel the stream when it no longer wants to receive datums.
 type CreateDatumRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

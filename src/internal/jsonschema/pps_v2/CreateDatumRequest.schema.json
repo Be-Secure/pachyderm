@@ -16,7 +16,8 @@
             },
             "additionalProperties": false,
             "type": "object",
-            "title": "Create Datum Request"
+            "title": "Create Datum Request",
+            "description": "Emits a stream of datums as they are created from the given input. Client must cancel the stream when it no longer wants to receive datums."
         },
         "pfs_v2.Trigger": {
             "properties": {

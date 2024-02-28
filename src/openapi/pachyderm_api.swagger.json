@@ -4224,7 +4224,7 @@
         "parameters": [
           {
             "name": "body",
-            "description": " (streaming inputs)",
+            "description": "Emits a stream of datums as they are created from the given input. Client\nmust cancel the stream when it no longer wants to receive datums. (streaming inputs)",
             "in": "body",
             "required": true,
             "schema": {
@@ -8934,7 +8934,8 @@
           "format": "int64",
           "description": "Number of datums to return in next batch. If unset, default batch size\nis returned."
         }
-      }
+      },
+      "description": "Emits a stream of datums as they are created from the given input. Client\nmust cancel the stream when it no longer wants to receive datums."
     },
     "pps_v2CreatePipelineRequest": {
       "type": "object",
