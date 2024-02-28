@@ -51,6 +51,10 @@ export enum Delimiter {
   CSV = "CSV",
 }
 
+export enum RepoPageOrdering {
+  PROJECT_REPO = "PROJECT_REPO",
+}
+
 export enum GetFileSetRequestFileSetType {
   TOTAL = "TOTAL",
   DIFF = "DIFF",
@@ -243,6 +247,13 @@ export type InspectRepoRequest = {
 export type ListRepoRequest = {
   type?: string
   projects?: Project[]
+  page?: RepoPage
+}
+
+export type RepoPage = {
+  order?: RepoPageOrdering
+  pageSize?: string
+  pageIndex?: string
 }
 
 export type DeleteRepoRequest = {
