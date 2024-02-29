@@ -3,6 +3,7 @@ package pfsdb_test
 import (
 	"context"
 	"fmt"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 
 	"github.com/pachyderm/pachyderm/v2/src/internal/pfsdb"
@@ -154,4 +155,37 @@ func TestUpdateProjectByID(t *testing.T) {
 		require.NoError(t, pfsdb.UpdateProject(cbCtx, tx, 2, projInfo), "should be able to update project")
 		return nil
 	}))
+}
+
+// todo(fahad): test a nil picker, test a picker that picks a project that doesn't exist
+func TestPickProject(t *testing.T) {
+	t.Parallel()
+	pickerName := &pfs.ProjectPicker{
+		Picker: &pfs.ProjectPicker_Name{
+			Name: "default",
+		},
+	}
+	expected := &pfsdb.ProjectWithID{
+		ID: 1,
+		ProjectInfo: &pfs.ProjectInfo{
+			Project: &pfs.Project{
+				Name: "default",
+			},
+		},
+	}
+	ctx := pctx.TestContext(t)
+	db := newTestDB(t, ctx)
+	withTx(t, ctx, db, func(ctx context.Context, tx *pachsql.Tx) {
+		got, err := pfsdb.PickProject(ctx, pickerName, tx)
+		require.NoError(t, err, "should be able to pick project")
+		require.True(t, cmp.Equal(expected, got, cmp.Comparer(compareProjects)))
+		_, err = pfsdb.PickProject(ctx, nil, tx)
+		require.YesError(t, err, "should error with a nil picker")
+		fmt.Println(err.Error())
+	})
+}
+
+func compareProjects(expected, got *pfsdb.ProjectWithID) bool {
+	return expected.ProjectInfo.Project.Name == got.ProjectInfo.Project.Name &&
+		expected.ID == got.ID && expected.Revision == got.Revision
 }

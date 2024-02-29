@@ -1077,3 +1077,96 @@ func watchCommits(ctx context.Context, db *pachsql.DB, snapshot stream.Iterator[
 		}
 	}
 }
+
+func PickCommit(ctx context.Context, commitPicker *pfs.CommitPicker, tx *pachsql.Tx) (*CommitWithID, error) {
+	if commitPicker == nil || commitPicker.Picker == nil {
+		return nil, errors.New("commit picker cannot be nil")
+	}
+	switch commitPicker.Picker.(type) {
+	case *pfs.CommitPicker_Id:
+		return pickCommitGlobalID(ctx, commitPicker.GetId(), tx)
+	case *pfs.CommitPicker_BranchHead:
+		return pickCommitBranchHead(ctx, commitPicker.GetBranchHead(), tx)
+	case *pfs.CommitPicker_Ancestor:
+		return pickCommitAncestorOf(ctx, commitPicker.GetAncestor(), tx)
+	case *pfs.CommitPicker_BranchRoot_:
+		return pickCommitBranchRoot(ctx, commitPicker.GetBranchRoot(), tx)
+	default:
+		return nil, errors.New(fmt.Sprintf("commit picker is of an unknown type: %T", commitPicker.Picker))
+	}
+}
+
+func pickCommitGlobalID(ctx context.Context, picker *pfs.CommitPicker_CommitByGlobalId, tx *pachsql.Tx) (*CommitWithID, error) {
+	repo, err := PickRepo(ctx, picker.Repo, tx)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	commitWithID, err := GetCommitWithIDByKey(ctx, tx, &pfs.Commit{
+		Repo: repo.RepoInfo.Repo,
+		Id:   picker.Id,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	return commitWithID, nil
+}
+
+func pickCommitBranchHead(ctx context.Context, branchHead *pfs.BranchPicker, tx *pachsql.Tx) (*CommitWithID, error) {
+	branchInfoWithID, err := PickBranch(ctx, branchHead, tx)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	commitWithID, err := GetCommitWithIDByKey(ctx, tx, branchInfoWithID.Head)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	return commitWithID, nil
+}
+
+func pickCommitAncestorOf(ctx context.Context, ancestorOf *pfs.CommitPicker_AncestorOf, tx *pachsql.Tx) (*CommitWithID, error) {
+	startCommit, err := PickCommit(ctx, ancestorOf.Start, tx)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	ancestry, err := GetCommitAncestry(ctx, tx, startCommit.ID, uint(ancestorOf.Offset))
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	commitInfo, err := GetCommit(ctx, tx, ancestry.EarliestDiscovered)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	commitWithID := &CommitWithID{
+		ID:         ancestry.EarliestDiscovered,
+		CommitInfo: commitInfo,
+	}
+	return commitWithID, nil
+}
+
+func pickCommitBranchRoot(ctx context.Context, branchRoot *pfs.CommitPicker_BranchRoot, tx *pachsql.Tx) (*CommitWithID, error) {
+	branchInfoWithID, err := PickBranch(ctx, branchRoot.GetBranch(), tx)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	headCommitId, err := GetCommitID(ctx, tx, branchInfoWithID.Head)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	ancestry, err := GetCommitAncestry(ctx, tx, headCommitId, 0)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	commitPtr := ancestry.EarliestDiscovered
+	for i := branchRoot.Offset; i > 0; i-- {
+		commitPtr = ancestry.Lineage[commitPtr]
+	}
+	commitInfo, err := GetCommit(ctx, tx, commitPtr)
+	if err != nil {
+		return nil, errors.Wrap(err, "picking commit")
+	}
+	commitWithID := &CommitWithID{
+		ID:         commitPtr,
+		CommitInfo: commitInfo,
+	}
+	return commitWithID, nil
+}

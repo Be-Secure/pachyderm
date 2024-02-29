@@ -299,3 +299,39 @@ func assertRepoSequence(t *testing.T, names []string, repos []pfsdb.RepoInfoWith
 		require.Equal(t, n, repos[i].RepoInfo.Repo.Name)
 	}
 }
+
+func TestPickRepo(t *testing.T) {
+	t.Parallel()
+	pickerName := &pfs.RepoPicker{
+		Picker: &pfs.RepoPicker_Name{
+			Name: &pfs.RepoPicker_RepoName{
+				Project: &pfs.ProjectPicker{
+					Picker: &pfs.ProjectPicker_Name{
+						Name: pfs.DefaultProjectName,
+					},
+				},
+				Name: testRepoName,
+				Type: testRepoType,
+			},
+		},
+	}
+	createInfo := testRepo(testRepoName, testRepoType)
+	createInfo.Branches = []*pfs.Branch{
+		{Repo: createInfo.Repo, Name: "master"},
+		{Repo: createInfo.Repo, Name: "a"},
+		{Repo: createInfo.Repo, Name: "b"},
+	}
+	ctx := pctx.TestContext(t)
+	db := newTestDB(t, ctx)
+	withTx(t, ctx, db, func(ctx context.Context, tx *pachsql.Tx) {
+		_, err := pfsdb.UpsertRepo(ctx, tx, createInfo)
+		require.NoError(t, err, "should be able to create repo")
+		createCommitAndBranches(ctx, tx, t, createInfo)
+		// validate GetRepoInfoWithID.
+		expected, err := pfsdb.GetRepoInfoWithID(ctx, tx, pfs.DefaultProjectName, testRepoName, testRepoType)
+		require.NoError(t, err, "should be able to get a repo")
+		got, err := pfsdb.PickRepo(ctx, pickerName, tx)
+		require.NoError(t, err, "should be able to pick repo")
+		require.True(t, cmp.Equal(expected, got, cmp.Comparer(compareRepos)))
+	})
+}

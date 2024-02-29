@@ -77,8 +77,6 @@ type driver struct {
 	commitStore commitStore
 
 	cache *fileset.Cache
-
-	picker *picker
 }
 
 func newDriver(env Env) (*driver, error) {
@@ -97,9 +95,6 @@ func newDriver(env Env) (*driver, error) {
 		etcdClient: env.EtcdClient,
 		txnEnv:     env.TxnEnv,
 		prefix:     env.EtcdPrefix,
-		picker: &picker{
-			db: env.DB,
-		},
 	}
 	storageEnv := storage.Env{DB: env.DB}
 	if env.Bucket != nil {
