@@ -302,7 +302,7 @@ func assertRepoSequence(t *testing.T, names []string, repos []pfsdb.RepoInfoWith
 
 func TestPickRepo(t *testing.T) {
 	t.Parallel()
-	pickerName := &pfs.RepoPicker{
+	namePicker := &pfs.RepoPicker{
 		Picker: &pfs.RepoPicker_Name{
 			Name: &pfs.RepoPicker_RepoName{
 				Project: &pfs.ProjectPicker{
@@ -311,6 +311,19 @@ func TestPickRepo(t *testing.T) {
 					},
 				},
 				Name: testRepoName,
+				Type: testRepoType,
+			},
+		},
+	}
+	badRepoPicker := &pfs.RepoPicker{
+		Picker: &pfs.RepoPicker_Name{
+			Name: &pfs.RepoPicker_RepoName{
+				Project: &pfs.ProjectPicker{
+					Picker: &pfs.ProjectPicker_Name{
+						Name: pfs.DefaultProjectName,
+					},
+				},
+				Name: "does not exist",
 				Type: testRepoType,
 			},
 		},
@@ -327,11 +340,15 @@ func TestPickRepo(t *testing.T) {
 		_, err := pfsdb.UpsertRepo(ctx, tx, createInfo)
 		require.NoError(t, err, "should be able to create repo")
 		createCommitAndBranches(ctx, tx, t, createInfo)
-		// validate GetRepoInfoWithID.
 		expected, err := pfsdb.GetRepoInfoWithID(ctx, tx, pfs.DefaultProjectName, testRepoName, testRepoType)
 		require.NoError(t, err, "should be able to get a repo")
-		got, err := pfsdb.PickRepo(ctx, pickerName, tx)
+		got, err := pfsdb.PickRepo(ctx, namePicker, tx)
 		require.NoError(t, err, "should be able to pick repo")
 		require.True(t, cmp.Equal(expected, got, cmp.Comparer(compareRepos)))
+		_, err = pfsdb.PickRepo(ctx, nil, tx)
+		require.YesError(t, err, "pick repo should error with a nil picker")
+		_, err = pfsdb.PickRepo(ctx, badRepoPicker, tx)
+		require.YesError(t, err, "pick repo should error with bad picker")
+		require.True(t, errors.As(err, &pfsdb.RepoNotFoundError{}))
 	})
 }

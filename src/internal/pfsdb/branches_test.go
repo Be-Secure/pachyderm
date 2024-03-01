@@ -3,6 +3,8 @@ package pfsdb_test
 import (
 	"context"
 	"fmt"
+	"github.com/pachyderm/pachyderm/v2/src/internal/pctx"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/util/deepcopy"
 	"testing"
 	"time"
 
@@ -544,5 +546,48 @@ func TestBranchTrigger(t *testing.T) {
 			require.NoError(t, err)
 			require.NoError(t, pfsdb.DeleteBranch(ctx, tx, &pfsdb.BranchInfoWithID{ID: stagingBranchID, BranchInfo: stagingBranchInfo}, true /* force */))
 		})
+	})
+}
+
+func TestPickBranch(t *testing.T) {
+	t.Parallel()
+	namePicker := &pfs.BranchPicker{
+		Picker: &pfs.BranchPicker_Name{
+			Name: &pfs.BranchPicker_BranchName{
+				Name: "test-branch",
+				Repo: &pfs.RepoPicker{
+					Picker: &pfs.RepoPicker_Name{
+						Name: &pfs.RepoPicker_RepoName{
+							Project: &pfs.ProjectPicker{
+								Picker: &pfs.ProjectPicker_Name{
+									Name: pfs.DefaultProjectName,
+								},
+							},
+							Name: testRepoName,
+							Type: testRepoType,
+						},
+					},
+				},
+			},
+		},
+	}
+	badBranchPicker := deepcopy.Copy(namePicker).(*pfs.BranchPicker)
+
+	ctx := pctx.TestContext(t)
+	db := newTestDB(t, ctx)
+	withTx(t, ctx, db, func(ctx context.Context, tx *pachsql.Tx) {
+		_, err := pfsdb.UpsertRepo(ctx, tx, createInfo)
+		require.NoError(t, err, "should be able to create repo")
+		createCommitAndBranches(ctx, tx, t, createInfo)
+		expected, err := pfsdb.GetRepoInfoWithID(ctx, tx, pfs.DefaultProjectName, testRepoName, testRepoType)
+		require.NoError(t, err, "should be able to get a repo")
+		got, err := pfsdb.PickRepo(ctx, namePicker, tx)
+		require.NoError(t, err, "should be able to pick repo")
+		require.True(t, cmp.Equal(expected, got, cmp.Comparer(compareRepos)))
+		_, err = pfsdb.PickRepo(ctx, nil, tx)
+		require.YesError(t, err, "pick repo should error with a nil picker")
+		_, err = pfsdb.PickRepo(ctx, badRepoPicker, tx)
+		require.YesError(t, err, "pick repo should error with bad picker")
+		require.True(t, errors.As(err, &pfsdb.RepoNotFoundError{}))
 	})
 }

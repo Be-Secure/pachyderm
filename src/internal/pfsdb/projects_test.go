@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/go-cmp/cmp"
+	"github.com/pachyderm/pachyderm/v2/src/internal/errors"
 	"testing"
 
 	"github.com/pachyderm/pachyderm/v2/src/internal/pfsdb"
@@ -157,12 +158,17 @@ func TestUpdateProjectByID(t *testing.T) {
 	}))
 }
 
-// todo(fahad): test a nil picker, test a picker that picks a project that doesn't exist
+// todo(fahad): test a picker that picks a project that doesn't exist
 func TestPickProject(t *testing.T) {
 	t.Parallel()
-	pickerName := &pfs.ProjectPicker{
+	namePicker := &pfs.ProjectPicker{
 		Picker: &pfs.ProjectPicker_Name{
 			Name: "default",
+		},
+	}
+	badProjectPicker := &pfs.ProjectPicker{
+		Picker: &pfs.ProjectPicker_Name{
+			Name: "does not exist",
 		},
 	}
 	expected := &pfsdb.ProjectWithID{
@@ -176,12 +182,14 @@ func TestPickProject(t *testing.T) {
 	ctx := pctx.TestContext(t)
 	db := newTestDB(t, ctx)
 	withTx(t, ctx, db, func(ctx context.Context, tx *pachsql.Tx) {
-		got, err := pfsdb.PickProject(ctx, pickerName, tx)
+		got, err := pfsdb.PickProject(ctx, namePicker, tx)
 		require.NoError(t, err, "should be able to pick project")
 		require.True(t, cmp.Equal(expected, got, cmp.Comparer(compareProjects)))
 		_, err = pfsdb.PickProject(ctx, nil, tx)
 		require.YesError(t, err, "should error with a nil picker")
-		fmt.Println(err.Error())
+		got, err = pfsdb.PickProject(ctx, badProjectPicker, tx)
+		require.YesError(t, err, "pick project should error with bad picker")
+		require.True(t, errors.As(err, &pfsdb.ProjectNotFoundError{}))
 	})
 }
 

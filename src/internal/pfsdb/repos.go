@@ -411,7 +411,7 @@ func PickRepo(ctx context.Context, repoPicker *pfs.RepoPicker, tx *pachsql.Tx) (
 		}
 		repoInfoWithID, err := GetRepoInfoWithID(ctx, tx, repo.Project.Name, repo.Name, repo.Type)
 		if err != nil {
-			return nil, errors.New("picking repo")
+			return nil, errors.Wrap(err, "picking repo")
 		}
 		return repoInfoWithID, nil
 	default:
